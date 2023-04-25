@@ -15,4 +15,3 @@ class KategoriPR extends Model
         'name'
     ];
 }
-}

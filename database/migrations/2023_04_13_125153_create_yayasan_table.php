@@ -15,13 +15,11 @@ class CreateYayasanTable extends Migration
     {
         Schema::create('yayasan', function (Blueprint $table) {
             $table->id();
-            $table->integer('yayasan_id')->nullable();
-            $table->integer('kategori_pr_id');
-            $table->string('nik')->nullable();
+            $table->integer('kategori_pr_id')->nullable();
             $table->string('name')->nullable();
-            $table->string('ttl')->nullable();
             $table->string('phone')->nullable();
             $table->string('foto')->nullable();
+            $table->string('address')->nullable();
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();
             $table->timestamps();

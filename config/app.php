@@ -175,6 +175,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        // add plugins
+        RealRashid\SweetAlert\SweetAlertServiceProvider::class,
+
+
     ],
 
     /*
@@ -229,6 +233,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        // add plugins
+        'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
 
     ],
 
