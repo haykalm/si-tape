@@ -3,9 +3,9 @@
     <!-- Logo -->
     <a href="index2.html" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>Ta</b>pe</span>
+      <span class="logo-mini"><b>S</b>T</span>
       <!-- logo for regular navbar-static-tope and mobile devices -->
-      <span class="logo-lg"><b>SI-</b>TAPE</span>
+      <span class="logo-lg"><b>SI-</b>TANPAN</span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">

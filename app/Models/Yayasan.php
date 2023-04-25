@@ -12,13 +12,11 @@ class Yayasan extends Model
     protected $table = 'yayasan';
 
     protected $fillable = [ 
-        'yayasan_id',
         'kategori_pr_id',
-        'nik',
         'name',
-        'ttl',
         'phone',
         'foto',
+        'address',
         'created_by',
         'modified_by',
     ];

@@ -16,6 +16,7 @@ class P_Rentan extends Model
         'kategori_pr_id',
         'nik',
         'name',
+        'gender',
         'ttl',
         'phone',
         'foto',
