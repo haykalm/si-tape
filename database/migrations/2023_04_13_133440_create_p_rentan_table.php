@@ -17,7 +17,7 @@ class CreatePRentanTable extends Migration
             $table->id();
             $table->integer('yayasan_id')->nullable();
             $table->integer('kategori_pr_id');
-            $table->string('nik');
+            $table->biginteger('nik')->unsigned();
             $table->string('name');
             $table->string('ttl')->nullable();
             $table->string('phone')->nullable();
