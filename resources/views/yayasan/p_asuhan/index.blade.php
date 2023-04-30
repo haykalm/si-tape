@@ -54,7 +54,8 @@
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value['name'] }}</td>
                             <td style="vertical-align: middle;">{{ $value['phone'] }}</td>
-                            <td style="vertical-align: middle;">
+                            <td style="vertical-align: middle;">{{ $value['kategori_name'] }}</td>
+                           {{-- <!-- <td style="vertical-align: middle;">
                                 @if($value['kategori_pr_id']!=null)
                                     @if($value['kategori_pr_id']==1)
                                         Odgj
@@ -71,7 +72,7 @@
                                     }
                                     @endif()
                                 @endif()
-                            </td>
+                            </td> --> --}}
                             <td style="vertical-align: middle;">{{ $value['address'] }}</td>
                             
                             <td style="display: flex;justify-content:center;">

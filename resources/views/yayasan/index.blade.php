@@ -54,24 +54,7 @@
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value['name'] }}</td>
                             <td style="vertical-align: middle;">{{ $value['phone'] }}</td>
-                            <td style="vertical-align: middle;">
-                                @if($value['kategori_pr_id']!=null)
-                                    @if($value['kategori_pr_id']==1)
-                                        Odgj
-                                    @elseif($value['kategori_pr_id']==2)
-                                        Panti Asuhan
-                                    @elseif($value['kategori_pr_id']==3)
-                                        Disabilitas
-                                    @elseif($value['kategori_pr_id']==4)
-                                        Napi
-                                    @elseif($value['kategori_pr_id']==4)
-                                        Transgender
-                                    @else{
-
-                                    }
-                                    @endif()
-                                @endif()
-                            </td>
+                            <td style="vertical-align: middle;">{{ $value['kategori_name'] }}</td>
                             <td style="vertical-align: middle;">{{ $value['address'] }}</td>
                             
                             <td style="display: flex;justify-content:center;">
