@@ -8,9 +8,14 @@ use Illuminate\Http\Request;
 use App\Models\{
     KategoriPR,
     P_Rentan,
+    Yayasan,
 };
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
 
 class PendudukController extends Controller
 {
@@ -22,10 +27,13 @@ class PendudukController extends Controller
     public function index()
     {
         
-        $disabilitas = P_Rentan::where('kategori_pr_id', 4)->get();
+        $disabilitas = P_Rentan::where('kategori_pr_id', 3)
+                    ->orderBy('id', 'DESC')
+                    ->get();
         $kategori_pr = KategoriPR::all();
+        $yayasan = yayasan::all();
 
-        return view('pr.disabilitas.index',['disabilitas'=>$disabilitas,'kategori_pr'=>$kategori_pr]);
+        return view('pr.disabilitas.index',['disabilitas'=>$disabilitas,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
     /**
@@ -47,29 +55,55 @@ class PendudukController extends Controller
     public function store(Request $request)
     {
         // return $request;
+        date_default_timezone_set('Asia/Jakarta');
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'nik' => 'required|unique:p_Rentan|max:16',
         ]);
-        
         if ($validator->fails()) {
             $out = [
             "message" => $validator->messages()->all(),
             ];
-            // return response()->json($out, 422);
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
             }
-
             Alert::error('Failed!', $out);
             return back();
-
         }
+        if ($request->hasfile('lampiran')) {
+            $validator = Validator::make($request->all(), [
+                'lampiran' => 'required|mimes:png,jpg,jpeg,csv,xlx,xls,pdf|max:1000',
+            ]);
+            if ($validator->fails()) {
+                $out = [
+                    "message" => $validator->messages()->all(),
+                ];
+                Alert::error('Failed!', $out);
+                return back();
+            }
+        }
+
+        $save = New P_Rentan;        
+        $save->yayasan_id   = $request->yayasan_id;
+        $save->kategori_pr_id   = $request->kategori_pr_id;
+        $save->nik   = $request->nik;
+        $save->name   = $request->name;
+        $save->gender   = $request->gender;
+        $save->ttl   = $request->ttl;
+        $save->phone   = $request->phone;
+        if ($request->hasfile('lampiran')) {
+            $save->lampiran   = $request->file('lampiran')->store('files/lampiran');
+        }
+        $save->save();
+
+        $save->where('id', $save->id)->update(['lampiran'=>$save->lampiran]);
+
         // $save = P_Rentan::create([
         //     'name' => $request['name'],
         // ]);
-        $save = P_Rentan::create($request->all());
+        // $save = P_Rentan::create($request->all());
 
         if ($save) {
             $response = [
@@ -103,7 +137,8 @@ class PendudukController extends Controller
     {
         $data = P_Rentan::find($id);
         $kategori_pr = KategoriPR::all();
-       return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr]);
+        $yayasan = Yayasan::all();
+       return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'yayasan' => $yayasan]);
     }
 
     /**
@@ -208,51 +243,100 @@ class PendudukController extends Controller
     public function list_napi()
     {
         
-        $napi = P_Rentan::where('kategori_pr_id', 5)->get();
+        $napi = P_Rentan::where('kategori_pr_id', 4)
+                ->orderBy('id', 'DESC')
+                ->get();
         $kategori_pr = KategoriPR::all();
-        // return $napi;
+        $yayasan = Yayasan::all();
 
-
-        return view('pr.napi.index',['napi'=>$napi,'kategori_pr'=>$kategori_pr]);
+        return view('pr.napi.index',['napi'=>$napi,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
     public function list_transgender()
     {
         
-        $transgender = P_Rentan::where('kategori_pr_id', 6)->get();
+        $transgender = P_Rentan::where('kategori_pr_id', 5)
+                ->orderBy('id', 'DESC')
+                ->get();;
         $kategori_pr = KategoriPR::all();
-        // return $transgender;
+        $yayasan = Yayasan::all();
 
-        return view('pr.transgender.index',['transgender'=>$transgender,'kategori_pr'=>$kategori_pr]);
+        return view('pr.transgender.index',['transgender'=>$transgender,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
      public function list_odgj()
     {
-        
-        $odgj = P_Rentan::where('kategori_pr_id', 1)->get();
+        $odgj = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
+                ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
+                ->where('p_rentan.kategori_pr_id', 1)
+                ->orderBy('id', 'DESC')
+                ->get();;
+                // return $odgj;  
         $kategori_pr = KategoriPR::all();
-        // return $odgj;
+        $yayasan = Yayasan::all();
 
-        return view('pr.odgj.index',['odgj'=>$odgj,'kategori_pr'=>$kategori_pr]);
+        return view('pr.odgj.index',['odgj'=>$odgj,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
     public function list_panti_asuhan()
     {
-        
-        $panti_asuhan = P_Rentan::where('kategori_pr_id', 2)->get();
+        $panti_asuhan = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
+                ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
+                ->where('p_rentan.kategori_pr_id', 2)
+                ->orderBy('id', 'DESC')
+                ->get();;
         $kategori_pr = KategoriPR::all();
-        // return $panti_asuhan;
+        $yayasan = Yayasan::all();
 
-        return view('pr.panti_asuhan.index',['panti_asuhan'=>$panti_asuhan,'kategori_pr'=>$kategori_pr]);
+        return view('pr.panti_asuhan.index',['panti_asuhan'=>$panti_asuhan,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
     public function all_pr()
     {
-        
-        $all_pr = P_Rentan::all();
-        $kategori_pr = KategoriPR::all();
-        // return $all_pr;
+        // $all_pr_join = P_Rentan::select('*','yayasan.*','yayasan.name as name_ysn','yayasan.id as id_ysn')
+        //         ->rightjoin('yayasan','yayasan.id','=','p_rentan.yayasan_id')
+        //         ->get();
+        // $data_pr = P_Rentan::whereNull('yayasan_id')->get();
+        // $data = array_merge($all_pr_join->toArray(),$data_pr->toArray()); 
 
-        return view('pr.all_pr.index',['all_pr'=>$all_pr,'kategori_pr'=>$kategori_pr]);
+        // all get 2 table use leftJoin       
+        $all_pr = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('id', 'DESC')
+                ->get();
+        $kategori_pr = KategoriPR::all();
+        $yayasan = Yayasan::all();
+
+        return view('pr.all_pr.index',['all_pr'=>$all_pr,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
+    }
+
+    public function download_lampiran($id){
+
+      $path = P_Rentan::where('id', $id)->value('lampiran');
+
+      if ($path) {
+            $response = [
+                'status' => true,
+                'message' => 'success downloaded file',
+                'data' => $path
+            ];
+            $http_code = 200;
+            return Storage::download($path);
+
+            Alert::success('Success', 'lampiran berhasil di download!');
+            return back();
+        } else {
+            $response = [
+                'status' => false,
+                'message' => 'Failed to download file'
+            ];
+            $http_code = 422;
+
+            Alert::error('Failed', 'lampiran belum di upload!');
+            return back();
+        }
+
+      
     }
 }

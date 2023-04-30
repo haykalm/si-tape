@@ -8,7 +8,7 @@
             <span class="glyphicon glyphicon-credit-card form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
-            <label style="margin-bottom: 0.5px">Nama :</label>
+            <label style="margin-bottom:0.1px; margin-top: 0.2px;">Nama :</label>
             <input value="{{ $data->name }}" type="text" name="name" class="form-control" placeholder="Name*" required>
             <span class="fa fa-text-width form-control-feedback"></span>
         </div>
@@ -32,14 +32,27 @@
         </div>
         <div class="form-group">
             <label style="margin-bottom: 0.5px">Kategori :</label>
-            <select class="form-control select2 select2-hidden-accessible" name="kategori_pr_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
-                <option value=""><b>pilih yayasan :</b></option>
+            <select class="form-control select2 select2-hidden-accessible" name="kategori_pr_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
+                <option value=""><b>pilih kategori :</b></option>
                 @foreach($kategori_pr as $data => $value)
                 <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
                 @endforeach()
-
             </select>
         </div>
+        <div class="form-group">
+            <label style="margin-bottom: 0.5px">Yayasan :</label>
+            <select class="form-control select2 select2-hidden-accessible" name="yayasan_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
+                <option value=""><b>pilih yayasan :</b></option>
+                @foreach($yayasan as $data => $value)
+                <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
+                @endforeach()
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="lampiran">lampiran :</label>
+            <input type="file" name="lampiran" id="lampiran">
+        </div>
+        
         <div class="modal-footer">
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary">Save changes</button>

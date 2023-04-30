@@ -20,6 +20,8 @@ class P_Rentan extends Model
         'ttl',
         'phone',
         'foto',
+        'lampiran',
+        'address',
         'created_by',
         'modified_by',
     ];
