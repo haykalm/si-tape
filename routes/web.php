@@ -11,7 +11,7 @@ use App\Http\Controllers\{
 use App\Http\Controllers\Penduduk\{
     CategeoryPendudukController,
     PendudukController,
-
+    ReportController,
 };
 
 /*
@@ -49,7 +49,18 @@ Route::get('/list_transgender', [PendudukController::class,'list_transgender']);
 Route::get('/list_odgj', [PendudukController::class,'list_odgj']);
 Route::get('/list_panti_asuhan', [PendudukController::class,'list_panti_asuhan']);
 
+// routes yayasan
 Route::resource('/yayasan', YayasanController::class);
 Route::get('/yayasan_odgj', [YayasanController::class,'yayasan_odgj']);
 Route::get('/yayasan_p_asuhan', [YayasanController::class,'yayasan_p_asuhan']);
-Route::get('/download_lampiran/{id}', [PendudukController::class, 'download_lampiran'])->name('download.lampiran');
+
+// routes report
+Route::get('/download_lampiran/{id}', [ReportController::class, 'download_lampiran'])->name('download.lampiran');
+Route::post('/import_penduduk', [ReportController::class, 'import_penduduk'])->name('import.penduduk');
+Route::get('/penduduk_excel', [ReportController::class, 'export_excel'])->name('penduduk.excel');
+Route::get('/disablitas_excel', [ReportController::class, 'disablitas_excel'])->name('disablitas.excel');
+Route::get('/napi_excel', [ReportController::class, 'napi_excel'])->name('napi.excel');
+Route::get('/transgender_excel', [ReportController::class, 'transgender_excel'])->name('transgender.excel');
+Route::get('/odgj_excel', [ReportController::class, 'odgj_excel'])->name('odgj.excel');
+Route::get('/panti_asuhan_excel', [ReportController::class, 'panti_asuhan_excel'])->name('panti_asuhan.excel');
+

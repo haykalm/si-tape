@@ -14,6 +14,50 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="box box-default">
+                        @if (session('status'))
+                            <div class="alert alert-success" role="alert">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        @if (isset($errors) && $errors->any())
+                            <div class="alert alert-danger">
+                                @foreach ($errors->all() as $error)
+                                    {{ $error }}
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if (session()->has('failures'))
+                            <table class="table table-danger" style="background-color: red;">
+                                <tr>
+                                    <th width="30%">Row</th>
+                                    <!-- <th>Attribute</th> -->
+                                    <th width="40%">Errors message</th>
+                                    <th width="30%">Column Validations</th>
+                                </tr>
+
+                                @foreach (session()->get('failures') as $validation)
+                                <tr>
+                                    <td width="30%">{{ $validation->row() }}</td>
+                                    <!-- <td>{{ $validation->attribute() }}</td> -->
+                                    <td width="40%">
+                                        <!-- <ul>
+                                            @foreach ($validation->errors() as $e)
+                                                <li>{{ $e }}</li>
+                                            @endforeach
+                                        </ul> -->
+                                        @foreach ($validation->errors() as $e)
+                                            {{ $e }}
+                                        @endforeach
+                                    </td>
+                                    <td width="30%">
+                                        {{ $validation->values()[$validation->attribute()] }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </table>
+                        @endif
                         <div class="box-header with-border">
                             <h3 class="box-title">List Panti Asuhan</h3>
                         </div>
@@ -22,9 +66,16 @@
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </button>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Print/Download">
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Download/Pdf">
                                 <i class="fa fa-fw fa-print"></i>
                                 Print
+                            </button>
+                            <a href="{{url('/panti_asuhan_excel')}}" title="Download/Excel" class="btn btn-success my-3" target="_blank"><i class="fa fa-fw fa-file-excel-o"></i>
+                                 Excel
+                            </a>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-import" title="Import data">
+                                <i class="fa fa-fw fa-file-text-o"></i>
+                                Import
                             </button>
                         </div>
                     </div>
@@ -177,6 +228,34 @@
     </div>
 </div>
 
+<!-- import modal -->
+<div class="modal fade" id="modal-import">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Import Penduduk Rentan</h4>
+            </div>
+            <form method="POST" action="{{url('/import_penduduk')}}" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="import_excel">masukan file excel :</label>
+                        <input type="file" name="import_excel" id="import_excel">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-info"><li class="fa fa-user-plus"></li>
+                        Import
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
 
 @endsection
 
