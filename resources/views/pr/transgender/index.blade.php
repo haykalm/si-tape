@@ -14,6 +14,50 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="box box-default">
+                        @if (session('status'))
+                            <div class="alert alert-success" role="alert">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        @if (isset($errors) && $errors->any())
+                            <div class="alert alert-danger">
+                                @foreach ($errors->all() as $error)
+                                    {{ $error }}
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if (session()->has('failures'))
+                            <table class="table table-danger" style="background-color: red;">
+                                <tr>
+                                    <th width="30%">Row</th>
+                                    <!-- <th>Attribute</th> -->
+                                    <th width="40%">Errors message</th>
+                                    <th width="30%">Column Validations</th>
+                                </tr>
+
+                                @foreach (session()->get('failures') as $validation)
+                                <tr>
+                                    <td width="30%">{{ $validation->row() }}</td>
+                                    <!-- <td>{{ $validation->attribute() }}</td> -->
+                                    <td width="40%">
+                                        <!-- <ul>
+                                            @foreach ($validation->errors() as $e)
+                                                <li>{{ $e }}</li>
+                                            @endforeach
+                                        </ul> -->
+                                        @foreach ($validation->errors() as $e)
+                                            {{ $e }}
+                                        @endforeach
+                                    </td>
+                                    <td width="30%">
+                                        {{ $validation->values()[$validation->attribute()] }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </table>
+                        @endif
                         <div class="box-header with-border">
                             <h3 class="box-title">List Transgender</h3>
                         </div>
@@ -22,9 +66,16 @@
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </button>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Print/Download">
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Download/Pdf">
                                 <i class="fa fa-fw fa-print"></i>
                                 Print
+                            </button>
+                            <a href="{{url('/transgender_excel')}}" title="Download/Excel" class="btn btn-success my-3" target="_blank"><i class="fa fa-fw fa-file-excel-o"></i>
+                                 Excel
+                            </a>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-import" title="Import data">
+                                <i class="fa fa-fw fa-file-text-o"></i>
+                                Import
                             </button>
                         </div>
                     </div>
@@ -61,6 +112,9 @@
                             <td style="vertical-align: middle;">{{ $value['gender'] }}</td>
                             
                             <td style="display: flex;justify-content:center;">
+                                <a href="{{url('/download_lampiran', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 3px">
+                                   <li type="button" class="fa fa-cloud-download" ></li>
+                                </a>
                                 <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 3px">
                                    <li type="submit" class="fa fa-pencil" ></li>
                                </a>
@@ -89,23 +143,26 @@
         
 <!-- create Modal-->
 <div class="modal fade" id="modal-default">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Add Transgender</h4>
-			</div>
-			<form method="POST" action="{{url('/penduduk')}}" enctype="multipart/form-data">
-				@csrf
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add Penduduk Rentan</h4>
+            </div>
+            <form method="POST" action="{{url('/penduduk')}}" enctype="multipart/form-data">
+                @csrf
                 <div class="modal-body">
                     <!-- <p>One fine body&hellip;</p> -->
+                    <div class="form-group has-feedback">
+                        <input type="hidden" name="kategori_pr_id" value="5" class="form-control">
+                    </div>
                     <div class="form-group has-feedback">
                         <label style="margin-bottom: 0.5px">NIk :</label>
                         <input type="text" name="nik" class="form-control" placeholder="Nik KTP*" required>
                         <span class="glyphicon glyphicon-credit-card form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
-                        <label style="margin-bottom: 0.5px">Nama :</label>
+                        <label style="margin-bottom:0.1px; margin-top: 0.2px;">Nama :</label>
                         <input type="text" name="name" class="form-control" placeholder="Name*" required>
                         <span class="fa fa-text-width form-control-feedback"></span>
                     </div>
@@ -128,25 +185,30 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label style="margin-bottom: 0.5px">Kategori :</label>
-                        <select class="form-control select2 select2-hidden-accessible" name="kategori_pr_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
+                        <label style="margin-bottom: 0.5px">Yayasan :</label>
+                        <select class="form-control select2 select2-hidden-accessible" name="yayasan_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
                             <option value=""><b>pilih yayasan :</b></option>
-                            @foreach($kategori_pr as $data => $value)
-                            <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
+                            @foreach($yayasan as $data => $value)
+                                <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
                             @endforeach()
-
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="lampiran">lampiran :</label>
+                        <input type="file" name="lampiran" id="lampiran">
+                    </div>
                 </div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Save changes</button>
-				</div>
-			</form>
-		</div>
-		<!-- /.modal-content -->
-	</div>
-	<!-- /.modal-dialog -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-info"><li class="fa fa-user-plus"></li>
+                        Add
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
 
@@ -164,6 +226,34 @@
     </div>
 </div>
 
+<!-- import modal -->
+<div class="modal fade" id="modal-import">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Import Penduduk Rentan</h4>
+            </div>
+            <form method="POST" action="{{url('/import_penduduk')}}" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="import_excel">masukan file excel :</label>
+                        <input type="file" name="import_excel" id="import_excel">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-info"><li class="fa fa-user-plus"></li>
+                        Import
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
 
 @endsection
 

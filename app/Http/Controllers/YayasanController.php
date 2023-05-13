@@ -20,7 +20,10 @@ class YayasanController extends Controller
      */
     public function index()
     {
-        $yayasan = Yayasan::all();
+        $yayasan = Yayasan::select('yayasan.*','kategori_pr.name as kategori_name')
+                ->join('kategori_pr','kategori_pr.id','=','yayasan.kategori_pr_id')
+                ->get();
+                // return $yayasan; 
         $kategori_pr = KategoriPR::all();
         // return $yayasan;
         return view('yayasan.index', ['yayasan' => $yayasan,'kategori_pr'=>$kategori_pr]);
@@ -204,17 +207,25 @@ class YayasanController extends Controller
 
     public function yayasan_odgj()
     {
-        $ysn_odgj = Yayasan::where('kategori_pr_id', 1)->get();
+        $ysn_odgj = Yayasan::select('yayasan.*','kategori_pr.name as kategori_name')
+                ->join('kategori_pr','kategori_pr.id','=','yayasan.kategori_pr_id')
+                ->where('kategori_pr_id', 1)
+                ->get();
+        // $ysn_odgj = Yayasan::where('kategori_pr_id', 1)->get();
         $kategori_pr = KategoriPR::all();
-        // return $ysn_odgj;
+
         return view('yayasan.odgj.index', ['ysn_odgj' => $ysn_odgj,'kategori_pr'=>$kategori_pr]);
     }
 
     public function yayasan_p_asuhan()
     {
-        $p_asuhan = Yayasan::where('kategori_pr_id', 2)->get();
+         $p_asuhan = Yayasan::select('yayasan.*','kategori_pr.name as kategori_name')
+                ->join('kategori_pr','kategori_pr.id','=','yayasan.kategori_pr_id')
+                ->where('kategori_pr_id', 2)
+                ->get();
+        // $p_asuhan = Yayasan::where('kategori_pr_id', 2)->get();
         $kategori_pr = KategoriPR::all();
-        // return $p_asuhan;
+        
         return view('yayasan.p_asuhan.index', ['p_asuhan' => $p_asuhan,'kategori_pr'=>$kategori_pr]);
     }
 
