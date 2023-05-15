@@ -26,25 +26,30 @@ use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Session;
 use Throwable;
+use File;
+use Response;
+
 
 class ReportController extends Controller
 {
     public function download_lampiran($id)
     {
+      $namefile = P_Rentan::where('id', $id)->value('lampiran');
+      // return $namefile;
+      $filepath = public_path('files/lampiran/'.$namefile);
+      // return $filepath;
 
-      $path = P_Rentan::where('id', $id)->value('lampiran');
-
-      if ($path) {
+      if ($filepath) {
             $response = [
                 'status' => true,
                 'message' => 'success downloaded file',
-                'data' => $path
+                'data' => $filepath
             ];
             $http_code = 200;
-            return Storage::download($path);
-
-            Alert::success('Success', 'lampiran berhasil di download!');
-            return back();
+            // return Storage::download($filepath);
+            return Response::download($filepath); 
+            // Alert::success('Success', 'lampiran berhasil di download!');
+            // return back();
         } else {
             $response = [
                 'status' => false,

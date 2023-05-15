@@ -70,8 +70,8 @@
                                 <i class="fa fa-fw fa-print"></i>
                                 Print
                             </button>
-                            <a href="{{url('/disablitas_excel')}}" title="Download/Excel" class="btn btn-success my-3" target="_blank"><i class="fa fa-fw fa-file-excel-o"></i>
-                                 Excel
+                            <a href="{{url('/disablitas_excel')}}" title="Download/Excel" class="btn btn-success my-3"><i class="fa fa-fw fa-file-excel-o"></i>
+                               Excel
                             </a>
                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-import" title="Import data">
                                 <i class="fa fa-fw fa-file-text-o"></i>
