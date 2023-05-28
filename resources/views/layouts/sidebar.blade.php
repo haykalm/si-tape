@@ -11,7 +11,7 @@
 
          <li class="{{request()->is('user') ? 'active' : ''}}">
           <a href="{{url('/user')}}">
-            <i class="fa fa-user"></i> <span>Admin</span>
+            <i class="fa fa-user"></i> <span>Users</span>
           </a>
         </li>
 
@@ -69,18 +69,18 @@
           </ul>
         </li>
 
-        <li class="treeview">
-          <a href="#"><i class="fa fa-picture-o"></i><span> Dokumentasi </span>
+        <li class="treeview {{request()->is('event','event/create','event_internal','create_event_internal','event/*/edit','edit_event_internal/*') ? 'active' : ''}}">
+          <a href="#"><i class="fa fa-picture-o"></i><span> Dokumentasi Acara</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
-            <li class="">
-              <a href=""><i class="fa fa-circle-o"></i>Internal</a>
+            <li class="{{request()->is('event_internal','create_event_internal','edit_event_internal/*') ? 'active' : ''}}">
+              <a href="{{url('/event_internal')}}"><i class="fa fa-circle-o"></i>Internal</a>
             </li>
-            <li class="">
-              <a href=""><i class="fa fa-circle-o"></i>Yayasan</a>
+            <li class="{{request()->is('event','event/create','event/*/edit') ? 'active' : ''}}">
+              <a href="{{url('/event')}}"><i class="fa fa-circle-o"></i>Yayasan</a>
             </li>
           </ul>
         </li>

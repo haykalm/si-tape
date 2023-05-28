@@ -66,10 +66,10 @@
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </button>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Download/Pdf">
+                            <a href="{{url('/odgj_pdf')}}" class="btn btn-info" title="Download/Pdf" target="_blank">
                                 <i class="fa fa-fw fa-print"></i>
                                 Print
-                            </button>
+                            </a>
                             <a href="{{url('/odgj_excel')}}" title="Download/Excel" class="btn btn-success my-3"><i class="fa fa-fw fa-file-excel-o"></i>
                                  Excel
                             </a>
@@ -104,12 +104,12 @@
                         @foreach($odgj as $data => $value)
                         <tr style="text-align:center;font-size: 13px;">
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
-                            <td style="vertical-align: middle;">{{ $value['nik'] }}</td>
-                            <td style="text-transform: uppercase;vertical-align: middle;">{{ $value['name'] }}</td>
-                            <td style="vertical-align: middle;">{{ $value['ttl'] }}</td>
-                            <td style="vertical-align: middle;">{{ $value['address'] }}</td>
-                            <td style="vertical-align: middle;">{{ $value['gender'] }}</td>
-                            <td style="vertical-align: middle;">{{ $value['yayasan_name'] }}</td>
+                            <td style="vertical-align: middle;">{{ $value->nik }}</td>
+                            <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->name }}</td>
+                            <td style="vertical-align: middle;">{{ $value->ttl }}</td>
+                            <td style="vertical-align: middle;">{{ $value->address }}</td>
+                            <td style="vertical-align: middle;">{{ $value->gender }}</td>
+                            <td style="vertical-align: middle;">{{ $value->yayasan_name }}</td>
                             
                             <td style="display: flex;justify-content:center;">
                                 <a href="{{url('/download_lampiran', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 3px">
@@ -118,10 +118,10 @@
                                 <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 3px">
                                    <li type="submit" class="fa fa-pencil" ></li>
                                </a>
-                                <form action="{{ route('penduduk.destroy',base64_encode($value['id']),) }}" method="post" style="text-decoration: none;">
+                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post" style="text-decoration: none;">
                                     @csrf
                                     @method('delete')
-                                   <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value['name']}} ?')" title="Delete" style="text-decoration: none;">
+                                   <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Delete" style="text-decoration: none;">
                                        <li class="fa fa-trash" ></li>
                                    </button>
                                </form>
@@ -189,7 +189,7 @@
                         <select class="form-control select2 select2-hidden-accessible" name="yayasan_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
                             <option value=""><b>pilih yayasan :</b></option>
                             @foreach($yayasan as $data => $value)
-                                <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
+                                <option value="{{$value->id}}">{{$data+1}}. {{$value->name}}</option>
                             @endforeach()
                         </select>
                     </div>
