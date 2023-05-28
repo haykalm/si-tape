@@ -33,9 +33,17 @@ class PendudukController extends Controller
      */
     public function index()
     {
-        $disabilitas = P_Rentan::where('kategori_pr_id', 3)
-                    ->orderBy('id', 'DESC')
-                    ->get();
+        // $disabilitas = P_Rentan::where('kategori_pr_id', 3)
+        //             ->orderBy('id', 'DESC')
+        //             ->get();
+        $disabilitas = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 3)
+                ->get();
+        // return $disabilitas;
         $kategori_pr = KategoriPR::all();
         $yayasan = yayasan::all();
 
@@ -202,7 +210,7 @@ class PendudukController extends Controller
             $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
             /*Modify Bank Code*/
-            $penduduk->yayasan_id = $request->yayasan_id;
+            $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
             $penduduk->kategori_pr_id = $request->kategori_pr_id;
             $penduduk->nik = $request->nik;
             $penduduk->name = $request->name;
@@ -213,7 +221,7 @@ class PendudukController extends Controller
             $penduduk->save();
         } else {
             /*Modify Bank Code*/
-            $penduduk->yayasan_id = $request->yayasan_id;
+            $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
             $penduduk->kategori_pr_id = $request->kategori_pr_id;
             $penduduk->nik = $request->nik;
             $penduduk->name = $request->name;
@@ -284,8 +292,15 @@ class PendudukController extends Controller
     public function list_napi()
     {
         
-        $napi = P_Rentan::where('kategori_pr_id', 4)
-                ->orderBy('id', 'DESC')
+        // $napi = P_Rentan::where('kategori_pr_id', 4)
+        //         ->orderBy('id', 'DESC')
+        //         ->get();
+        $napi = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 4)
                 ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
@@ -295,9 +310,16 @@ class PendudukController extends Controller
 
     public function list_transgender()
     {
-        $transgender = P_Rentan::where('kategori_pr_id', 5)
-                ->orderBy('id', 'DESC')
-                ->get();
+        // $transgender = P_Rentan::where('kategori_pr_id', 5)
+        //         ->orderBy('id', 'DESC')
+        //         ->get();
+        $transgender = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 5)
+                ->get(); 
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
@@ -306,12 +328,18 @@ class PendudukController extends Controller
 
      public function list_odgj()
     {
-        $odgj = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
-                ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
-                ->where('p_rentan.kategori_pr_id', 1)
-                ->orderBy('id', 'DESC')
-                ->get();;
-                // return $odgj;  
+        // $odgj = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
+        //         ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
+        //         ->where('p_rentan.kategori_pr_id', 1)
+        //         ->orderBy('id', 'DESC')
+        //         ->get();
+        $odgj = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 1)
+                ->get(); 
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
@@ -320,11 +348,20 @@ class PendudukController extends Controller
 
     public function list_panti_asuhan()
     {
-        $panti_asuhan = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
-                ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
-                ->where('p_rentan.kategori_pr_id', 2)
-                ->orderBy('id', 'DESC')
-                ->get();;
+        // $panti_asuhan = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
+        //         ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
+        //         ->where('p_rentan.kategori_pr_id', 2)
+        //         ->orderBy('id', 'DESC')
+        //         ->get();
+
+        $panti_asuhan = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 2)
+                ->get();
+
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 

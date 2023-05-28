@@ -80,10 +80,10 @@
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </button>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Download/Pdf">
+                            <a href="{{url('/all_pr_pdf')}}" class="btn btn-info" title="Download/Pdf" target="_blank">
                                 <i class="fa fa-fw fa-print"></i>
                                 Print
-                            </button>
+                            </a>
                             <a href="{{route('penduduk.excel')}}" title="Download/Excel" class="btn btn-success my-3"><i class="fa fa-fw fa-file-excel-o"></i>
                                  Excel
                             </a>

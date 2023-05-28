@@ -178,7 +178,10 @@ return [
         // add plugins
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-
+        Barryvdh\DomPDF\ServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
+        // Dompdf\DompdfServiceProvider::class,
+        Collective\Html\HtmlServiceProvider::class,
 
     ],
 
@@ -237,6 +240,11 @@ return [
         // add plugins
         'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        // 'PDF' => Dompdf\DompdfFacade::class,
+        'Form' => Collective\Html\FormFacde::class,
+        'Html' => Collective\Html\HtmlFacde::class,
 
     ],
 
