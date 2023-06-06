@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-    List Acara Internal
+    List Kegiatan Perorangan
 @endsection
 
 @section('content')
@@ -15,7 +15,7 @@
                 <div class="col-xs-12">
                     <div class="box box-default">
                         <div class="box-header with-border">
-                            <h3 class="box-title">List Acara Internal</h3>
+                            <h3 class="box-title">List Kegiatan Perorangan</h3>
                         </div>
                         <div class="box-body">
                             <a href="{{url('/create_event_internal')}}" type="button" class="btn btn-default" title="Add Admin">
@@ -47,7 +47,7 @@
                 <tr>
                     <tr>
                         <th style="vertical-align: middle;text-align: center;" width="1%">No</th>
-                        <th style="vertical-align: middle;text-align: center;" width="15%">Name Acara</th>
+                        <th style="vertical-align: middle;text-align: center;" width="15%">Name Kegiatan</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Tempat</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Tanggal</th>
                         <th style="vertical-align: middle;text-align: center;" width="1%">Actions</th>
@@ -77,7 +77,7 @@
                                 <form action="{{ route('event.destroy',base64_encode($value->id),) }}" method="post" style="text-decoration: none;">
                                     @csrf
                                     @method('delete')
-                                   <button class="btn btn-danger btn-xs" onclick="return confirm('Hapus acara: {{$value->event_name }} tgl: {{ date("d-M-Y",strtotime($value->date)) }} ?')" title="Delete" style="text-decoration: none;">
+                                   <button class="btn btn-danger btn-xs" onclick="return confirm('Hapus Kegiatan: {{$value->event_name }} tgl: {{ date("d-M-Y",strtotime($value->date)) }} ?')" title="Delete" style="text-decoration: none;">
                                        <li class="fa fa-trash" ></li>
                                    </button>
                                </form>

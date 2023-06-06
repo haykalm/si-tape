@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 
-
-
 class UserController extends Controller
 {
     /**
@@ -52,9 +50,9 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => ['required', 'string', 'max:255'],
             'email' => 'required|unique:users|max:55',
-            'password' => 'required',
+            // 'password' => 'required',
             'role_id' => 'required',
         ]);
         
@@ -75,7 +73,7 @@ class UserController extends Controller
         $save = User::create([
             'name' => $request['name'],
             'email' => $request['email'],
-            'password' => Hash::make($request['password']),
+            'password' => Hash::make($request['password'] ?? 'disdukcapil'),
             'phone' => $request['phone'],
             'address' => $request['address'],
             'foto' => $request['foto'],

@@ -4,9 +4,13 @@ namespace App\Imports;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use App\Models\P_Rentan;
-use App\Models\Yayasan;
-use App\Models\KategoriPR;
+use App\Models\{
+    P_Rentan,
+    Yayasan,
+    KategoriPR,
+    Pendataan,
+    PendataanHistory,
+};
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\WithStartRow;
@@ -17,7 +21,7 @@ use Throwable;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Validators\Failure;
-
+use Carbon\Carbon;
 
 class PendudukImport implements 
     ToCollection, 
@@ -29,7 +33,11 @@ class PendudukImport implements
     use Importable, SkipsErrors, SkipsFailures;
 
     public $data;
-    // public $request_kategori;
+    private $kode_pendataan;
+    private $monthyear;
+    private $month;
+    private $year;
+    private $Ymd_His;
 
     public function startRow(): int
     {
@@ -40,6 +48,24 @@ class PendudukImport implements
     {
         $this->data = $collection;
         $data = $this->data;
+
+        $this->monthyear = Carbon::now()->format('mY');
+        $this->month = Carbon::now()->format('m');
+        $this->year = Carbon::now()->format('Y');
+        $this->Ymd_His = Carbon::now()->format('Y-m-d H:i:s');
+
+        $pendataan = Pendataan::select('kode_pendataan')
+            ->whereMonth('created_at', $this->month)
+            ->max("kode_pendataan");
+
+        $kode_pendataan = [];
+        if ($pendataan == null) {
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
+        } else {   
+            $kode_pendataan = (int) substr($pendataan, 11, 16);
+            $kode_pendataan++;
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
+        }
 
 
         foreach ($data as $key => $value) {
@@ -61,7 +87,17 @@ class PendudukImport implements
                     $save_pr->ttl = $value[2];
                     $save_pr->address = $value[3];
                     $save_pr->gender = $value[4];
-                    $save = $save_pr->save();
+                    $save_pr->save();
+
+                    $pendataan = new Pendataan;
+                    $pendataan->p_rentan_id = $save_pr->id;
+                    $pendataan->kode_pendataan = $this->kode_pendataan ++;
+                    $pendataan->save();
+
+                    $pendataan_h = new PendataanHistory;
+                    $pendataan_h->pendataan_id = $pendataan->id;
+                    $pendataan_h->pendataan_date = $this->Ymd_His;
+                    $pendataan_h->save();
                 } else {
                     $save_yayasan = New Yayasan;        
                     $save_yayasan->kategori_pr_id = $kategori->id;        
@@ -76,7 +112,17 @@ class PendudukImport implements
                     $save_pr->ttl = $value[2];
                     $save_pr->address = $value[3];
                     $save_pr->gender = $value[4];
-                    $save = $save_pr->save();
+                    $save_pr->save();
+
+                    $pendataan = new Pendataan;
+                    $pendataan->p_rentan_id = $save_pr->id;
+                    $pendataan->kode_pendataan = $this->kode_pendataan ++;
+                    $pendataan->save();
+
+                    $pendataan_h = new PendataanHistory;
+                    $pendataan_h->pendataan_id = $pendataan->id;
+                    $pendataan_h->pendataan_date = $this->Ymd_His;
+                    $pendataan_h->save();
                 }
             } else {
                 // $y_name = $value[5];
@@ -92,17 +138,37 @@ class PendudukImport implements
                     $save_pr->ttl = $value[2];
                     $save_pr->address = $value[3];
                     $save_pr->gender = $value[4];
-                    $save = $save_pr->save();
+                    $save_pr->save();
+
+                    $pendataan = new Pendataan;
+                    $pendataan->p_rentan_id = $save_pr->id;
+                    $pendataan->kode_pendataan = $this->kode_pendataan ++;
+                    $pendataan->save();
+
+                    $pendataan_h = new PendataanHistory;
+                    $pendataan_h->pendataan_id = $pendataan->id;
+                    $pendataan_h->pendataan_date = $this->Ymd_His;
+                    $pendataan_h->save();
                 }else{
-                    $save_pr = New P_Rentan;        
-                    $save_pr->yayasan_id = $value[5] ?? NULL;
-                    $save_pr->kategori_pr_id = $value[6] ?? NULL;
-                    $save_pr->nik = intval($value[0] ?? NULL);
-                    $save_pr->name = $value[1] ?? NULL;
-                    $save_pr->ttl = $value[2] ?? NULL;
-                    $save_pr->address = $value[3] ?? NULL;
-                    $save_pr->gender = $value[4] ?? NULL;
-                    $save = $save_pr->save();
+                    // $save_pr = New P_Rentan;        
+                    // $save_pr->yayasan_id = $value[5] ?? NULL;
+                    // $save_pr->kategori_pr_id = $value[6] ?? NULL;
+                    // $save_pr->nik = intval($value[0] ?? NULL);
+                    // $save_pr->name = $value[1] ?? NULL;
+                    // $save_pr->ttl = $value[2] ?? NULL;
+                    // $save_pr->address = $value[3] ?? NULL;
+                    // $save_pr->gender = $value[4] ?? NULL;
+                    // $save_pr->save();
+
+                    // $pendataan = new Pendataan;
+                    // $pendataan->p_rentan_id = $save_pr->id;
+                    // $pendataan->kode_pendataan = $this->kode_pendataan ++;
+                    // $pendataan->save();
+
+                    // $pendataan_h = new PendataanHistory;
+                    // $pendataan_h->pendataan_id = $pendataan->id;
+                    // $pendataan_h->pendataan_date = $this->Ymd_His;
+                    // $pendataan_h->save();
                 }
             }
         }

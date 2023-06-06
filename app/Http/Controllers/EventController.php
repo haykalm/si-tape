@@ -7,6 +7,10 @@ use App\Models\{
     Event,
     EventImages,
     Yayasan,
+    Pendataan,
+    PendataanHistory,
+    P_Rentan,
+    NotaDinas,
 };
 use RealRashid\SweetAlert\Facades\Alert;
 // use DB;
@@ -16,27 +20,41 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use File;
 
-
 class EventController extends Controller
 {
     public function __construct()
     {
-        // function event_image($id){
-        //     $image=EventImages::where('events_id',$id)->first();
-        //     return $image->img_file;
-        // }
+        $this->middleware('auth');
+        
+        $this->monthyear = Carbon::now()->format('mY');
+        $this->month = Carbon::now()->format('m');
+        $this->year = Carbon::now()->format('Y');
+        $this->Ymd_His = Carbon::now()->format('Y-m-d H:i:s');
+
+        //**order_number formating**//
+        $pendataan = Pendataan::select('kode_pendataan')
+            ->whereMonth('created_at', $this->month)
+            ->max("kode_pendataan");
+
+        $kode_pendataan = [];
+        if ($pendataan == null) {
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
+        } else {
+            // $pendataan = Pendataan::select('kode_pendataan')
+            //     ->whereMonth('created_at', $this->month)
+            //     ->max("kode_pendataan");    
+            $kode_pendataan = (int) substr($pendataan, 11, 16);
+            $kode_pendataan++;
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
+        }
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $event = DB::table('events as e')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'e.yayasan_id')
-                // ->leftJoin('event_images as i', 'i.events_id', '=', 'e.id')
-                ->select('e.id as id_event','e.event_name','e.event_location','e.date','y.name as yayasan_name')
+                ->leftJoin('p_rentan as pr', 'pr.id', '=', 'e.p_rentan_id')
+                ->select('e.id as id_event','e.event_name','e.event_location','e.date','pr.nik','y.name as yayasan_name')
                 ->orderBy('e.id', 'DESC')
                 ->WhereNotNull('e.yayasan_id')
                 ->get();
@@ -65,12 +83,18 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        // return $request; 
         date_default_timezone_set('Asia/Jakarta');
+
         $validator = Validator::make($request->all(), [
             'event_name' => 'required',
             'event_location' => 'required',
-            // 'name_file' => 'required|mimes:png,jpeg,jpg|max:2000',
-            'date' => 'required'
+            'date' => 'required',
+            'name' => 'required',
+            'nik' => 'required|unique:p_Rentan|max:16',
+            'name_file' => 'required|max:2000',
+            'lampiran' => 'required|max:2000',
+            'file' => 'required|max:2000',
         ]);
         if ($validator->fails()) {
             $out = [
@@ -82,14 +106,41 @@ class EventController extends Controller
             }
         }
 
-        $yayasan = Yayasan::where('id', $request->yayasan_id)->first();
+        if ($request->hasfile('lampiran')) {
+            /*Add New Image*/
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        }
+
+        $save_pr = New P_Rentan;
+        $save_pr->yayasan_id   = $request->yayasan_id ?? NULL;
+        $save_pr->kategori_pr_id   = 3;
+        $save_pr->nik   = $request->nik;
+        $save_pr->name   = $request->name;
+        $save_pr->gender   = $request->gender ?? NULL;
+        $save_pr->ttl   = $request->ttl ?? NULL;
+        $save_pr->lampiran   = $imageName ?? NULL;
+        $save_pr->save();
+
+        // $yayasan = Yayasan::where('id', $request->yayasan_id)->first();
 
         $new_event = new Event;
-        $new_event->yayasan_id = $yayasan->id ?? NULL;
+        $new_event->p_rentan_id = $save_pr->id;
+        $new_event->yayasan_id = $request->yayasan_id ?? NULL;
         $new_event->event_name = $request->event_name;
         $new_event->event_location = $request->event_location;
         $new_event->date = Carbon::parse($request->date)->format('Y-m-d');
         $new_event->save();
+
+        $pendataan = new Pendataan;
+        $pendataan->p_rentan_id = $save_pr->id;
+        $pendataan->kode_pendataan = $this->kode_pendataan;
+        $pendataan->save();
+
+        $pendataan_h = new PendataanHistory;
+        $pendataan_h->pendataan_id = $pendataan->id;
+        $pendataan_h->pendataan_date = $this->Ymd_His;
+        $pendataan_h->save();
 
         if ($request->hasfile('name_file')) {
             foreach ($request->file('name_file') as $file) {
@@ -106,6 +157,16 @@ class EventController extends Controller
             }
         }
 
+        if ($request->hasfile('file')) {
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+
+            $notadinas = new NotaDinas;
+            $notadinas->yayasan_id = $request->yayasan_id ?? NULL;
+            $notadinas->p_rentan_id = $save_pr->id;
+            $notadinas->file = $Name;
+            $notadinas->save();
+        }
 
         // return redirect()->route('event.index')->with(Alert::success('Success', 'Data berhasil ditambahkan!'));
         return redirect()->route('event.index')->with('success', 'Successfully Add Data.');
@@ -174,13 +235,6 @@ class EventController extends Controller
             }
         }
 
-        $nameimages = EventImages::where('events_id', $id)->get();
-        if ($nameimages) {
-            foreach ($nameimages as $key => $value) {
-               File::delete(public_path().'/files/event/'. $value->name_file);
-            }
-        }
-
         $event = Event::where('id', $id)->first();
 
         $event->yayasan_id = $request->yayasan_id ?? NULL;
@@ -190,6 +244,14 @@ class EventController extends Controller
         $event->save();
 
         if ($request->hasfile('name_file')) {
+            $EventImages = EventImages::where('events_id', $id)->get();
+            if ($EventImages) {
+                foreach ($EventImages as $key => $value) {
+                   File::delete(public_path().'/files/event/'. $value->name_file);
+                   $value->delete();
+                }
+            }
+
             foreach ($request->file('name_file') as $file) {
                 $name = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path() . '/files/event/', $name);
@@ -203,6 +265,7 @@ class EventController extends Controller
                 $event_image->save();
             }
         }
+
         return redirect()->route('event.index')->with('success', 'Successfully Updated Data.');
     }
 
@@ -263,29 +326,64 @@ class EventController extends Controller
 
     public function store_event_internal(Request $request)
     {
+         // return $request; 
         date_default_timezone_set('Asia/Jakarta');
+
         $validator = Validator::make($request->all(), [
             'event_name' => 'required',
             'event_location' => 'required',
             'date' => 'required',
-            // 'name_file' => 'required|mimes:png,jpeg,jpg|max:2000',
+            'name' => 'required',
+            'nik' => 'required|unique:p_Rentan|max:16',
+            'name_file' => 'required|max:2000',
+            'lampiran' => 'required|max:2000',
+            'file' => 'required|max:2000',
         ]);
         if ($validator->fails()) {
             $out = [
-                "message" => $validator->messages()->all()
+                "message" => $validator->messages()->all(),
             ];
-            // foreach ($out as $key => $value) {
-                Alert::error('Failed!', $out);
+            foreach ($out as $key => $value) {
+                Alert::error('Failed!', $value);
                 return back();
-            // }
+            }
         }
 
+        if ($request->hasfile('lampiran')) {
+            /*Add New Image*/
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        }
+
+        $save_pr = New P_Rentan;
+        $save_pr->yayasan_id   = $request->yayasan_id ?? NULL;
+        $save_pr->kategori_pr_id   = 3;
+        $save_pr->nik   = $request->nik;
+        $save_pr->name   = $request->name;
+        $save_pr->gender   = $request->gender ?? NULL;
+        $save_pr->ttl   = $request->ttl ?? NULL;
+        $save_pr->lampiran   = $imageName ?? NULL;
+        $save_pr->save();
+
+        // $yayasan = Yayasan::where('id', $request->yayasan_id)->first();
+
         $new_event = new Event;
-        $new_event->yayasan_id = NULL;
+        $new_event->p_rentan_id = $save_pr->id;
+        $new_event->yayasan_id = $request->yayasan_id ?? NULL;
         $new_event->event_name = $request->event_name;
         $new_event->event_location = $request->event_location;
         $new_event->date = Carbon::parse($request->date)->format('Y-m-d');
         $new_event->save();
+
+        $pendataan = new Pendataan;
+        $pendataan->p_rentan_id = $save_pr->id;
+        $pendataan->kode_pendataan = $this->kode_pendataan;
+        $pendataan->save();
+
+        $pendataan_h = new PendataanHistory;
+        $pendataan_h->pendataan_id = $pendataan->id;
+        $pendataan_h->pendataan_date = $this->Ymd_His;
+        $pendataan_h->save();
 
         if ($request->hasfile('name_file')) {
             foreach ($request->file('name_file') as $file) {
@@ -300,6 +398,17 @@ class EventController extends Controller
                 $event_image->name_file      = $value;
                 $event_image->save();
             }
+        }
+
+        if ($request->hasfile('file')) {
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+
+            $notadinas = new NotaDinas;
+            $notadinas->yayasan_id = $request->yayasan_id ?? NULL;
+            $notadinas->p_rentan_id = $save_pr->id;
+            $notadinas->file = $Name;
+            $notadinas->save();
         }
 
         return redirect()->route('event.internal')->with('success', 'Successfully Add Data.');

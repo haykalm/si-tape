@@ -9,6 +9,9 @@ use App\Models\{
     KategoriPR,
     P_Rentan,
     Yayasan,
+    Pendataan,
+    PendataanHistory,
+    NotaDinas,
 };
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -22,17 +25,37 @@ use Session;
 use Throwable;
 use File;
 // use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 
 class PendudukController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+   public function __construct()
+    {
+        $this->monthyear = Carbon::now()->format('mY');
+        $this->month = Carbon::now()->format('m');
+        $this->year = Carbon::now()->format('Y');
+        $this->Ymd_His = Carbon::now()->format('Y-m-d H:i:s');
+
+        //**order_number formating**//
+        $pendataan = Pendataan::select('kode_pendataan')
+            ->whereMonth('created_at', $this->month)
+            ->max("kode_pendataan");
+
+        $kode_pendataan = [];
+        if ($pendataan == null) {
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
+            
+        } else {
+            $kode_pendataan = (int) substr($pendataan, 11, 16);
+            $kode_pendataan++;
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
+        }
+    }
+
     public function index()
     {
+        // return $this->kode_pendataan;
         // $disabilitas = P_Rentan::where('kategori_pr_id', 3)
         //             ->orderBy('id', 'DESC')
         //             ->get();
@@ -50,22 +73,11 @@ class PendudukController extends Controller
         return view('pr.disabilitas.index',['disabilitas'=>$disabilitas,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         // return $request;
@@ -74,6 +86,8 @@ class PendudukController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'nik' => 'required|unique:p_Rentan|max:16',
+            'lampiran' => 'required|max:2000',
+            'file' => 'required|max:2000',
         ]);
         if ($validator->fails()) {
             $out = [
@@ -84,36 +98,45 @@ class PendudukController extends Controller
                 return back();
             }
         }
-        if ($request->hasfile('lampiran')) {
-            $validator = Validator::make($request->all(), [
-                'lampiran' => 'required|mimes:png,jpg,jpeg,pdf|max:1000',
-            ]);
-            if ($validator->fails()) {
-                $out = [
-                    "message" => $validator->messages()->all(),
-                ];
-                foreach ($out as $key => $value) {
-                    Alert::error('Failed!', $value);
-                    return back();
-                }
-            }
-        }
 
-        /*Add New Image*/
-        $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
-        $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        if ($request->hasfile('lampiran')) {
+            /*Add New Image*/
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        }
 
         // insert data
         $save_pr = New P_Rentan;
-        $save_pr->yayasan_id   = $request->yayasan_id;
+        $save_pr->yayasan_id   = $request->yayasan_id ?? NULL;
         $save_pr->kategori_pr_id   = $request->kategori_pr_id;
         $save_pr->nik   = $request->nik;
         $save_pr->name   = $request->name;
-        $save_pr->gender   = $request->gender;
-        $save_pr->ttl   = $request->ttl;
-        $save_pr->phone   = $request->phone;        
-        $save_pr->lampiran   = $imageName;
+        $save_pr->gender   = $request->gender ?? NULL;
+        $save_pr->ttl   = $request->ttl ?? NULL;
+        $save_pr->address   = $request->address ?? NULL;
+        $save_pr->lampiran   = $imageName ?? NULL;
         $save_pr->save();
+
+        $pendataan = new Pendataan;
+        $pendataan->p_rentan_id = $save_pr->id;
+        $pendataan->kode_pendataan = $this->kode_pendataan;
+        $pendataan->save();
+
+        $pendataan_h = new PendataanHistory;
+        $pendataan_h->pendataan_id = $pendataan->id;
+        $pendataan_h->pendataan_date = $this->Ymd_His;
+        $pendataan_h->save();
+
+        if ($request->hasfile('file')) {
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+
+            $notadinas = new NotaDinas;
+            $notadinas->yayasan_id = $request->yayasan_id ?? NULL;
+            $notadinas->p_rentan_id = $save_pr->id;
+            $notadinas->file = $Name;
+            $notadinas->save();
+        }
 
         if ($save_pr) {
             $response = [
@@ -137,43 +160,30 @@ class PendudukController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $data = P_Rentan::find($id);
         $kategori_pr = KategoriPR::all();
+        $old_kategori_pr = KategoriPR::where('id',$data->kategori_pr_id)->first();
         $yayasan = Yayasan::all();
-        return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'yayasan' => $yayasan]);
+        $old_yayasan = Yayasan::where('id',$data->yayasan_id)->first();
+
+        return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'old_kategori_pr' => $old_kategori_pr,'yayasan' => $yayasan,'old_yayasan' => $old_yayasan]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'nik' => 'required|max:16',
+            'lampiran' => 'max:2000',
+            'file' => 'max:2000',
+
         ]);
         
         if ($validator->fails()) {
@@ -186,53 +196,43 @@ class PendudukController extends Controller
                 return back();
             }
         }
-        if ($request->hasfile('lampiran')) {
-            $validator = Validator::make($request->all(), [
-                'lampiran' => 'required|mimes:png,jpg,jpeg,pdf|max:2000',
-            ]);
-            if ($validator->fails()) {
-                $out = [
-                    "message" => $validator->messages()->all(),
-                ];
-                foreach ($out as $key => $value) {
-                    Alert::error('Failed!', $value);
-                    return back();
-                }
-            }
-        }
 
         $penduduk = P_Rentan::where('id', $id)->first();
+        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
 
         if ($request->hasfile('lampiran')) {
-            /*Delete Image*/
+
             File::delete(public_path().'/files/lampiran/'. $penduduk->lampiran);
-            /*Add New Image*/
+
             $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
-            /*Modify Bank Code*/
-            $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
-            $penduduk->kategori_pr_id = $request->kategori_pr_id;
-            $penduduk->nik = $request->nik;
-            $penduduk->name = $request->name;
-            $penduduk->gender = $request->gender;
-            $penduduk->ttl = $request->ttl;
-            $penduduk->phone = $request->phone;        
-            $penduduk->lampiran = $imageName;
-            $penduduk->save();
-        } else {
-            /*Modify Bank Code*/
-            $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
-            $penduduk->kategori_pr_id = $request->kategori_pr_id;
-            $penduduk->nik = $request->nik;
-            $penduduk->name = $request->name;
-            $penduduk->gender = $request->gender;
-            $penduduk->ttl = $request->ttl;
-            $penduduk->phone = $request->phone;        
-            // $penduduk->lampiran = $imageName;
-            $penduduk->save();
         }
+
+        if ($request->hasfile('file')) {
+
+            File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
+
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+        }
+
+        $penduduk->yayasan_id = $request->yayasan_id ?? $penduduk->kategori_pr_id ?? NULL;
+        $penduduk->kategori_pr_id = $request->kategori_pr_id ?? $penduduk->kategori_pr_id;
+        $penduduk->nik = $request->nik ?? $penduduk->nik;
+        $penduduk->name = $request->name ?? $penduduk->name;
+        $penduduk->gender = $request->gender ?? $penduduk->gender;
+        $penduduk->ttl = $request->ttl ?? $penduduk->ttl;
+        $penduduk->address = $request->address ?? $penduduk->address;
+        $penduduk->lampiran = $imageName ?? $penduduk->lampiran;
+        $penduduk->save();
         // $save = $p_Rentan->update($request->all()); 
         // $save->where('id', $save->id)->update(['lampiran'=>$save->lampiran]);
+
+        $notadinas->yayasan_id = $request->yayasan_id ?? $penduduk->kategori_pr_id ?? NULL;
+        $notadinas->p_rentan_id = $penduduk->id ?? $notadinas->p_rentan_id;
+        $notadinas->file = $Name ?? $notadinas->file;
+        $notadinas->save();
+
         if ($penduduk) {
             $response = [
                 'status' => true,
@@ -255,16 +255,27 @@ class PendudukController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $id = base64_decode($id);
+        
         $data = P_Rentan::find($id);
+        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
+        $pendataan = Pendataan::where('p_rentan_id', $id)->first();
+        $pendataan_h = PendataanHistory::where('pendataan_id', $pendataan->id)->first();
+        $event = Event::where('p_rentan_id', $id)->first();
+        $event_image = EventImages::where('events_id', $event->id)->get();
+
+        if ($event || $event_image) {
+            foreach ($event_image as $key => $value) {
+                $value->delete();
+            }
+            $event->delete();
+        }
+
+        File::delete(public_path().'/files/lampiran/'. $data->lampiran);
+        File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
+
         if ($data) {
             $response = [
                 'status' => true,
@@ -274,6 +285,9 @@ class PendudukController extends Controller
             $http_code = 200;
 
             $data->delete();
+            $notadinas->delete();
+            $pendataan->delete();
+            $pendataan_h->delete();
 
             Alert::success('Success', 'Data berhasil dihapus!');
             return back();

@@ -24,6 +24,6 @@ class HomeController extends Controller
     public function index()
     {
         // return 'testing login';
-        return view('home');
+        return view('dashboard');
     }
 }

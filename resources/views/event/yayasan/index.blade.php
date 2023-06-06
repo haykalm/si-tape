@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-    List Acara Yayasan
+    List Kegiatan Yayasan
 @endsection
 
 @section('content')
@@ -15,7 +15,7 @@
                 <div class="col-xs-12">
                     <div class="box box-default">
                         <div class="box-header with-border">
-                            <h3 class="box-title">List Acara Yayasan</h3>
+                            <h3 class="box-title">List Kegiatan Yayasan</h3>
                         </div>
                         <div class="box-body">
                             <a href="{{url('/event/create')}}" type="button" class="btn btn-default" title="Add Admin">
@@ -33,13 +33,13 @@
         @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
-            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>  
+            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">X</a>  
         </div>        
         @endif 
         @if (session('warning'))
         <div class="alert alert-warning">
             {{ session('warning') }}
-            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>  
+            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">X</a>  
         </div>        
         @endif 
         <table id="example1" class="table table-bordered table-striped">
@@ -47,7 +47,8 @@
                 <tr>
                     <tr>
                         <th style="vertical-align: middle;text-align: center;" width="1%">No</th>
-                        <th style="vertical-align: middle;text-align: center;" width="15%">Name Acara</th>
+                        <th style="vertical-align: middle;text-align: center;" width="15%">Name Kegiatan</th>
+                        <th style="vertical-align: middle;text-align: center;" width="15%">NIK</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Tempat</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Tanggal</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Yayasan</th>
@@ -62,18 +63,22 @@
                         <tr style="text-align:center;font-size: 13px;">
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
                             <td style="vertical-align: middle;">{{ $value->event_name }}</td>
+                            <td style="vertical-align: middle;">{{ $value->nik }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->event_location }}</td>
                             <td style="vertical-align: middle;">{{ date("d-M-Y",strtotime($value->date)) }}</td>
                             <td style="vertical-align: middle;">{{ $value->yayasan_name }}</td>
                             
                             <td style="display: flex;justify-content:center;">
-                                <a class="btn btn-success btn-xs show_confirm" onClick="show({{ $value->id_event }})" data-nama="#" data-toggle="tooltip" title="show images" style="margin-right: 3px">
+                               <a class="btn btn-success btn-xs show_confirm" onClick="show({{ $value->id_event }})" data-nama="#" data-toggle="tooltip" title="show images" style="margin-right: 2px">
                                    <li type="submit" class="fa fa-eye" ></li>
                                </a>
-                                <a href="{{url('/event_pdf', $value->id_event)}}" class="btn btn-primary btn-xs show_confirm" title="Download Event" style="margin-right: 3px" target="_blank">
+                                <a href="{{url('/event_pdf', $value->id_event)}}" class="btn btn-primary btn-xs show_confirm" title="Download Event" style="margin-right: 2px" target="_blank">
                                    <li type="button" class="fa fa-cloud-download" ></li>
                                 </a>
-                                <a href="{{ route('event.edit',base64_encode($value->id_event),) }}" class="btn btn-info btn-xs" title="Edit" style="margin-right: 3px">
+                               {{-- <!-- <a href="{{url('/download_nota_dinas', $value->id_event)}}" class="btn bg-purple btn-xs show_confirm" title="download nota dinas" style="margin-right: 2px">
+                                   <li type="button" class="fa fa-download" ></li>
+                               </a> --> --}}
+                                <a href="{{ route('event.edit',base64_encode($value->id_event),) }}" class="btn btn-info btn-xs" title="Edit" style="margin-right: 2px">
                                    <li type="button" class="fa fa-pencil" ></li>
                                </a>
                                 <form action="{{ route('event.destroy',base64_encode($value->id_event),) }}" method="post" style="text-decoration: none;">
@@ -105,7 +110,7 @@
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">x</span>
                 </button>
-                <h5 class="modal-title" id="exampleModalLabel">Gambar kegiatan</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Gambar Kegiatan</h5>
             </div>
             <div class="modal-body">
                 <div id="page"></div>

@@ -99,48 +99,54 @@
     </div>
 
     <div class="box-body">
-        <table id="example1" class="table table-bordered table-striped">
+        <table id="example1" class="table table-bordered table-striped" width="100%">
             <thead>
                 <tr>
                     <th style="vertical-align: middle;text-align: center;" width="1%">No</th>
-                    <th style="vertical-align: middle;text-align: center;" width="15%">Nik</th>
-                    <th style="vertical-align: middle;text-align: center;" width="15%">Name</th>
-                    <th style="vertical-align: middle;text-align: center;" width="15%">TTL</th>
-                    <th style="vertical-align: middle;text-align: center;" width="15%">Alamat</th>
-                    <th style="vertical-align: middle;text-align: center;" width="15%">jenis kelamin</th>
-                    <th style="vertical-align: middle;text-align: center;" width="15%">Yayasan</th>
-                    <th style="vertical-align: middle;text-align: center;" width="15%">Status</th>
-                    <th style="vertical-align: middle;text-align: center;" width="1%">Actions</th>
+                    <th style="vertical-align: middle;text-align: center;" >Nik</th>
+                    <th style="vertical-align: middle;text-align: center;" >Name</th>
+                    <th style="vertical-align: middle;text-align: center;" >TTL</th>
+                    <th style="vertical-align: middle;text-align: center;" >Alamat</th>
+                    <th style="vertical-align: middle;text-align: center;" >jenis kelamin</th>
+                    <th style="vertical-align: middle;text-align: center;" >Yayasan</th>
+                    <th style="vertical-align: middle;text-align: center;" width="1%">Status</th>
+                    <th style="vertical-align: middle;text-align: center;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                     @if(!empty($all_pr))
 
                         @foreach($all_pr as $data => $value)
-                        <tr style="text-align:center;font-size: 13px;">
-                            <td style="vertical-align: middle;">{{ $data +1 }}</td>
-                            <td style="vertical-align: middle;">{{ $value->nik }}</td>
-                            <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->name }}</td>
-                            <td style="vertical-align: middle;">{{ $value->ttl }}</td>
-                            <td style="vertical-align: middle;">{{ $value->address }}</td>
-                            <td style="vertical-align: middle;">{{ $value->gender }}</td>
-                            <td style="vertical-align: middle;">{{ $value->yayasan_name }}</td>
-                            <td style="vertical-align: middle;">{{ $value->kategori_name }}</td>
+                        <tr style="text-align:center;">
+                            <td style="vertical-align: middle;font-size: 12px;">{{ $data +1 }}</td>
+                            <td style="vertical-align: middle;font-size: 12px;">{{ $value->nik }}</td>
+                            <td style="text-transform: uppercase;vertical-align: middle;font-size: 12px;">{{ $value->name }}</td>
+                            <td style="vertical-align: middle;font-size: 12px;">{{ $value->ttl }}</td>
+                            <td style="text-transform: lowercase; vertical-align: middle;font-size: 11px;">{{ $value->address }}</td>
+                            <td style="vertical-align: middle;font-size: 12px;">{{ $value->gender }}</td>
+                            <td style="vertical-align: middle;font-size: 12px;">{{ $value->yayasan_name }}</td>
+                            <td style="vertical-align: middle;font-size: 12px;">{{ $value->kategori_name }}</td>
                             
-                            <td style="display: flex;justify-content:center;">
-                                <a href="{{url('/download_lampiran', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 3px">
-                                   <li type="button" class="fa fa-cloud-download" ></li>
+                            <td style="display: flex;justify-content:center;vertical-align: middle;text-decoration: none;">
+                                <a href="{{url('/download_lampiran', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 2px">
+                                    <li type="button" class="fa fa-cloud-download" ></li>
                                 </a>
-                                <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 3px">
-                                   <li type="submit" class="fa fa-pencil" ></li>
+                                <a href="{{url('/download_nota_dinas', $value->id)}}" class="btn bg-purple btn-xs show_confirm" title="download nota dinas" style="margin-right: 2px">
+                                    <li type="button" class="fa fa-download" ></li>
                                 </a>
-                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post" style="text-decoration: none;">
+                                <a href="{{url('/detail_pr_pdf', $value->id)}}" class="btn bg-orange btn-xs show_confirm" target="_blank" title="download nota dinas" style="margin-right: 2px">
+                                    <li type="button" class="glyphicon glyphicon-download"></li>
+                                </a>
+                                <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 2px">
+                                    <li type="submit" class="fa fa-pencil" ></li>
+                                </a>
+                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post">
                                     @csrf
                                     @method('delete')
-                                   <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Hapus" style="text-decoration: none;">
-                                       <li class="fa fa-trash" ></li>
-                                   </button>
-                               </form>
+                                    <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Hapus" style="text-decoration: none;">
+                                        <li class="fa fa-trash" ></li>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
 
@@ -218,8 +224,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="lampiran">lampiran :</label>
-                        <input type="file" name="lampiran" id="lampiran">
+                        {!! Form::label('Lampiran:', '') !!}
+                        <div class="input-group ">
+                            <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                            <input type="file" class="form-control has-feedback" id="lampiran" name="lampiran" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {!! Form::label('Nota Dinas:', '') !!}
+                        <div class="input-group ">
+                            <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                            <input type="file" class="form-control has-feedback" id="file" name="file" required>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

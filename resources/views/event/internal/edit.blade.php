@@ -1,13 +1,13 @@
 @extends('layouts.master')
 
 @section('title')
-    Edit Acara Internal
+    Edit Kegiatan Perorangan
 @endsection
 
 @section('content')
 <div class="content-wrapper">
 	<div class="box-body">
-        <h3 class="box-title"><i><u>Edit Acara Internal</u></i></h3>
+        <h3 class="box-title"><i><u>Edit Kegiatan Perorangan</u></i></h3>
 		<div class="row">
 		    <div class="col-lg-12">
 		        <div class="box" style="border-radius: 5px">
@@ -22,7 +22,7 @@
 		                                    <div class="form-group">
 		                                        <div class="col-md-12">
 		                                            <div class="col-md-12">
-		                                                {!! Form::label('Nama Acara:', '') !!}
+		                                                {!! Form::label('Nama Kegiatan:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-text-width"></i></span>
 		                                                    <input type="text" class="form-control  has-feedback" value="{{$event->event_name}}" id="event_name" name="event_name" required>
@@ -33,7 +33,7 @@
 		                                    <div class="form-group">
 		                                        <div class="col-md-12">
 		                                            <div class="col-md-12">
-		                                                {!! Form::label('Tempat Acara:', '') !!}
+		                                                {!! Form::label('Tempat Kegiatan:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-map-marker"></i></span>
 		                                                    {!! Form::textarea('event_location', $event->event_location, ['class'=>'form-control ','required','placeholder' => '','style'=>'width:40%','style'=>'height:50px' ]) !!}

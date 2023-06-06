@@ -22,10 +22,6 @@
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </button>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Print/Download">
-                                <i class="fa fa-fw fa-print"></i>
-                                Print
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -102,8 +98,6 @@
 </div>
 <!-- /.box-body -->
 
-
-        
 <!-- create Modal-->
 <div class="modal fade" id="modal-default">
 	<div class="modal-dialog">
@@ -135,10 +129,6 @@
                     <div class="form-group has-feedback">
                         <textarea type="text" name="address" class="form-control" placeholder="Address"></textarea>
                         <span class="glyphicon glyphicon-map-marker form-control-feedback"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="exampleInputFile">File input</label>
-                        <input type="file" name="foto" id="exampleInputFile">
                     </div>
                 </div>
 				<div class="modal-footer">

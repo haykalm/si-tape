@@ -103,28 +103,34 @@
                     @if(!empty($napi))
 
                         @foreach($napi as $data => $value)
-                        <tr style="text-align:center;font-size: 13px;">
+                        <tr style="text-align:center;font-size: 12px;">
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
                             <td style="vertical-align: middle;">{{ $value->nik }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->name }}</td>
                             <td style="vertical-align: middle;">{{ $value->ttl }}</td>
-                            <td style="vertical-align: middle;">{{ $value->address }}</td>
+                            <td style="text-transform: lowercase;vertical-align: middle;">{{ $value->address }}</td>
                             <td style="vertical-align: middle;">{{ $value->gender }}</td>
                             
-                            <td style="display: flex;justify-content:center;">
-                                <a href="{{url('/download_lampiran', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 3px">
-                                   <li type="button" class="fa fa-cloud-download" ></li>
+                            <td style="display: flex;justify-content:center;vertical-align: middle;text-decoration: none;">
+                                <a href="{{url('/download_lampiran', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 2px">
+                                    <li type="button" class="fa fa-cloud-download" ></li>
                                 </a>
-                                <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 3px">
-                                   <li type="submit" class="fa fa-pencil" ></li>
-                               </a>
-                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post" style="text-decoration: none;">
+                                <a href="{{url('/download_nota_dinas', $value->id)}}" class="btn bg-purple btn-xs show_confirm" title="download nota dinas" style="margin-right: 2px">
+                                    <li type="button" class="fa fa-download" ></li>
+                                </a>
+                                <a href="{{url('/detail_pr_pdf', $value->id)}}" class="btn bg-orange btn-xs show_confirm" target="_blank" title="download nota dinas" style="margin-right: 2px">
+                                    <li type="button" class="glyphicon glyphicon-download"></li>
+                                </a>
+                                <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 2px">
+                                    <li type="submit" class="fa fa-pencil" ></li>
+                                </a>
+                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post">
                                     @csrf
                                     @method('delete')
-                                   <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Delete" style="text-decoration: none;">
-                                       <li class="fa fa-trash" ></li>
-                                   </button>
-                               </form>
+                                    <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Hapus" style="text-decoration: none;">
+                                        <li class="fa fa-trash" ></li>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
 
@@ -194,8 +200,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="lampiran">lampiran :</label>
-                        <input type="file" name="lampiran" id="lampiran">
+                        {!! Form::label('Lampiran:', '') !!}
+                        <div class="input-group ">
+                            <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                            <input type="file" class="form-control has-feedback" id="lampiran" name="lampiran" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {!! Form::label('Nota Dinas:', '') !!}
+                        <div class="input-group ">
+                            <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                            <input type="file" class="form-control has-feedback" id="file" name="file" required>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
