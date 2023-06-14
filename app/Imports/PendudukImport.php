@@ -150,25 +150,7 @@ class PendudukImport implements
                     $pendataan_h->pendataan_date = $this->Ymd_His;
                     $pendataan_h->save();
                 }else{
-                    // $save_pr = New P_Rentan;        
-                    // $save_pr->yayasan_id = $value[5] ?? NULL;
-                    // $save_pr->kategori_pr_id = $value[6] ?? NULL;
-                    // $save_pr->nik = intval($value[0] ?? NULL);
-                    // $save_pr->name = $value[1] ?? NULL;
-                    // $save_pr->ttl = $value[2] ?? NULL;
-                    // $save_pr->address = $value[3] ?? NULL;
-                    // $save_pr->gender = $value[4] ?? NULL;
-                    // $save_pr->save();
 
-                    // $pendataan = new Pendataan;
-                    // $pendataan->p_rentan_id = $save_pr->id;
-                    // $pendataan->kode_pendataan = $this->kode_pendataan ++;
-                    // $pendataan->save();
-
-                    // $pendataan_h = new PendataanHistory;
-                    // $pendataan_h->pendataan_id = $pendataan->id;
-                    // $pendataan_h->pendataan_date = $this->Ymd_His;
-                    // $pendataan_h->save();
                 }
             }
         }
@@ -179,11 +161,12 @@ class PendudukImport implements
     {
         // $names_kategori = KategoriPR::pluck('name');
         return [
-            '0' => 'required|unique:p_Rentan,nik|max:16',
-            '1' => 'required',
-            '6' => 'required', //kategori name
-            // '6' => 'required'.$names_kategori, //kategori name
-            // '*.0' => ['0','unique:p_Rentan,nik'],
+            '0' => 'required|unique:p_Rentan,nik|size:16',
+            '1' => 'required|string',
+            '2' => 'required',
+            '3' => 'required',
+            '4' => 'required|in:male,female',
+            '6' => 'required|in:odgj,panti asuhan,disabilitas,napi,transgender'
         ];
     }
     // public function onFailure(Failure ...$failure)

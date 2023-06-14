@@ -1,13 +1,13 @@
 @extends('layouts.master')
 
 @section('title')
-    List Kegiatan Perorangan
+    List Kegiatan Per-orangan
 @endsection
 
 @section('content')
 
 <!-- DataTales Example -->
-<div class="content-wrapper">
+<div class="content-wrapper" style="border-radius: 7px">
     
     <div class="card-header">
         <section class="content-header">
@@ -15,10 +15,10 @@
                 <div class="col-xs-12">
                     <div class="box box-default">
                         <div class="box-header with-border">
-                            <h3 class="box-title">List Kegiatan Perorangan</h3>
+                            <h3 class="box-title">List Kegiatan Per-orangan</h3>
                         </div>
                         <div class="box-body">
-                            <a href="{{url('/create_event_internal')}}" type="button" class="btn btn-default" title="Add Admin">
+                            <a href="{{url('/create_event_internal')}}" type="button" class="btn btn-default" title="Add">
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </a>
@@ -48,6 +48,7 @@
                     <tr>
                         <th style="vertical-align: middle;text-align: center;" width="1%">No</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Name Kegiatan</th>
+                        <th style="vertical-align: middle;text-align: center;" width="15%">NIK</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Tempat</th>
                         <th style="vertical-align: middle;text-align: center;" width="15%">Tanggal</th>
                         <th style="vertical-align: middle;text-align: center;" width="1%">Actions</th>
@@ -61,20 +62,21 @@
                         <tr style="text-align:center;font-size: 13px;">
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
                             <td style="vertical-align: middle;">{{ $value->event_name }}</td>
+                            <td style="vertical-align: middle;">{{ $value->nik }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->event_location }}</td>
                             <td style="vertical-align: middle;">{{ date("d-M-Y",strtotime($value->date)) }}</td>
                             
                             <td style="display: flex;justify-content:center;">
-                                <a class="btn btn-success btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="show images" style="margin-right: 3px">
+                                <a class="btn btn-success btn-xs show_confirm" onClick="show({{ $value->id_event }})" data-nama="#" data-toggle="tooltip" title="show images" style="margin-right: 3px">
                                    <li type="submit" class="fa fa-eye" ></li>
                                </a>
-                                <a href="{{url('/event_pdf', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Event" style="margin-right: 3px" target="_blank">
+                                <a href="{{url('/event_pdf', base64_encode($value->id_event),)}}" class="btn btn-primary btn-xs show_confirm" title="Download Event" style="margin-right: 3px" target="_blank">
                                    <li type="button" class="fa fa-cloud-download" ></li>
                                 </a>
-                                <a href="{{ route('edit_event.internal',base64_encode($value->id),) }}" class="btn btn-info btn-xs" title="Edit" style="margin-right: 3px">
+                                <a href="{{ route('edit_event.internal',base64_encode($value->id_event),) }}" class="btn btn-info btn-xs" title="Edit" style="margin-right: 3px">
                                    <li type="button" class="fa fa-pencil" ></li>
                                </a>
-                                <form action="{{ route('event.destroy',base64_encode($value->id),) }}" method="post" style="text-decoration: none;">
+                                <form action="{{ route('event.destroy',base64_encode($value->id_event),) }}" method="post" style="text-decoration: none;">
                                     @csrf
                                     @method('delete')
                                    <button class="btn btn-danger btn-xs" onclick="return confirm('Hapus Kegiatan: {{$value->event_name }} tgl: {{ date("d-M-Y",strtotime($value->date)) }} ?')" title="Delete" style="text-decoration: none;">
@@ -98,7 +100,7 @@
 <!-- Modal master to edit and update-->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius: 7px">
             <div class="modal-header">
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">x</span>

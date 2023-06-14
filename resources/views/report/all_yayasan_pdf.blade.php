@@ -48,8 +48,8 @@
                     <tr style="text-align:center;font-size: 12px;">
                         <td style="vertical-align: middle;">{{ $data +1 }}</td>
                         <td style="text-transform: uppercase; vertical-align: middle;">{{ $value->name }}</td>
-                        <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->phone }}</td>
-                        <td style="vertical-align: middle;">{{ $value->address }}</td>
+                        <td style="vertical-align: middle;">{{ $value->phone }}</td>
+                        <td style="text-transform: lowercase;vertical-align: middle;">{{ $value->address }}</td>
                         <td style="vertical-align: middle;">{{ $value->name_category }}</td>
                     </tr>
                     @endforeach()

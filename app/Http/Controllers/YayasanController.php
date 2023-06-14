@@ -22,10 +22,11 @@ class YayasanController extends Controller
     {
         $yayasan = Yayasan::select('yayasan.*','kategori_pr.name as kategori_name')
                 ->join('kategori_pr','kategori_pr.id','=','yayasan.kategori_pr_id')
+                ->orderBy('yayasan.id', 'DESC')
                 ->get();
-                // return $yayasan; 
+
         $kategori_pr = KategoriPR::all();
-        // return $yayasan;
+
         return view('yayasan.index', ['yayasan' => $yayasan,'kategori_pr'=>$kategori_pr]);
     }
 
@@ -56,7 +57,7 @@ class YayasanController extends Controller
             $out = [
             "message" => $validator->messages()->all(),
             ];
-            // return response()->json($out, 422);
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
@@ -66,27 +67,14 @@ class YayasanController extends Controller
             return back();
 
         }
-        // $save = P_Rentan::create([
-        //     'name' => $request['name'],
-        // ]);
+
         $save = Yayasan::create($request->all());
 
         if ($save) {
-            $response = [
-                'status' => true,
-                'message' => 'success saved data',
-                'data' => $save
-            ];
-            $http_code = 200;
 
             Alert::success('Success', 'Yayasan berhasil ditambahkan!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to saved data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Yayasan gagal ditambahkan!');
             return back();
@@ -103,7 +91,9 @@ class YayasanController extends Controller
     {
         $data = Yayasan::find($id);
         $kategori_pr = KategoriPR::all();
-        return view('yayasan.edit', ['data' => $data,'kategori_pr' => $kategori_pr]);
+
+        $kategoriold = KategoriPR::where('id',$data->kategori_pr_id)->first();
+        return view('yayasan.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'kategoriold' => $kategoriold]);
     }
 
     /**
@@ -131,13 +121,14 @@ class YayasanController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'kategori_pr_id' => 'required',
+            'phone' => 'min:8|max:14',
         ]);
         
         if ($validator->fails()) {
             $out = [
             "message" => $validator->messages()->all(),
             ];
-            // return response()->json($out, 422);
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
@@ -149,22 +140,12 @@ class YayasanController extends Controller
         }
 
         $save = $yayasan->update($request->all()); 
+
         if ($save) {
-            $response = [
-                'status' => true,
-                'message' => 'success updated data',
-                'data' => $save
-            ];
-            $http_code = 200;
 
             Alert::success('Success', 'Data berhasil diupdate!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to updated data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal diupdate!');
             return back();
@@ -182,23 +163,12 @@ class YayasanController extends Controller
         $id = base64_decode($id);
         $data = Yayasan::find($id);
         if ($data) {
-            $response = [
-                'status' => true,
-                'message' => 'success deleted data',
-                'data' => $data
-            ];
-            $http_code = 200;
 
             $data->delete();
 
             Alert::success('Success', 'Data berhasil dihapus!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to delete data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal dihapus!');
             return back();
@@ -210,8 +180,9 @@ class YayasanController extends Controller
         $ysn_odgj = Yayasan::select('yayasan.*','kategori_pr.name as kategori_name')
                 ->join('kategori_pr','kategori_pr.id','=','yayasan.kategori_pr_id')
                 ->where('kategori_pr_id', 1)
+                ->orderBy('yayasan.id', 'DESC')
                 ->get();
-        // $ysn_odgj = Yayasan::where('kategori_pr_id', 1)->get();
+
         $kategori_pr = KategoriPR::all();
 
         return view('yayasan.odgj.index', ['ysn_odgj' => $ysn_odgj,'kategori_pr'=>$kategori_pr]);
@@ -222,8 +193,9 @@ class YayasanController extends Controller
          $p_asuhan = Yayasan::select('yayasan.*','kategori_pr.name as kategori_name')
                 ->join('kategori_pr','kategori_pr.id','=','yayasan.kategori_pr_id')
                 ->where('kategori_pr_id', 2)
+                ->orderBy('yayasan.id', 'DESC')
                 ->get();
-        // $p_asuhan = Yayasan::where('kategori_pr_id', 2)->get();
+
         $kategori_pr = KategoriPR::all();
         
         return view('yayasan.p_asuhan.index', ['p_asuhan' => $p_asuhan,'kategori_pr'=>$kategori_pr]);

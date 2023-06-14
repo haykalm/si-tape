@@ -39,19 +39,19 @@
                 </tr>
                 <tr>
                     <th colspan="4" style="text-align: left;">Status</th>
-                    <td>{{$detail_pr->name_category}}</td>
+                    <td style="text-transform: capitalize;">{{$detail_pr->name_category}}</td>
                 </tr>
 
                 @if($yayasan))
                     <tr>
                         <th colspan="4" style="text-align: left;">Yayasan</th>
-                        <td>{{$yayasan->name}}</td>
+                        <td style="text-transform: lowercase;text-transform: capitalize;">{{$yayasan->name}}</td>
                     </tr>
                 @endif()   
 
                 <tr style="text-align: center;">
                     <th style="vertical-align: middle;">NIK</th>
-                    <th style="vertical-align: middle;">Name</th>
+                    <th style="vertical-align: middle;">Nama</th>
                     <th style="vertical-align: middle;">TTL</th>
                     <th style="vertical-align: middle;">Jenis Kelamin</th>
                     <th style="vertical-align: middle;">Alamat</th>
@@ -62,7 +62,7 @@
                     <tr style="text-align:center;">
                         <td style="vertical-align: middle;">{{$detail_pr->nik}}</td>
                         <td style="text-transform: uppercase; vertical-align: middle;">{{$detail_pr->name}}</td>
-                        <td style="vertical-align: middle;">{{$detail_pr->ttl}}</td>
+                        <td style="text-transform: lowercase;vertical-align: middle;">{{$detail_pr->ttl}}</td>
                         <td style="vertical-align: middle;">
                             @if($detail_pr->gender == 'male')
                                 Pria
@@ -70,7 +70,7 @@
                                 Wanita
                             @endif()
                         </td>
-                        <td style="vertical-align: middle;">{{$detail_pr->address}}</td>
+                        <td style="text-transform: lowercase;vertical-align: middle;">{{$detail_pr->address}}</td>
                     </tr>
                 @endif()   
             </tbody>

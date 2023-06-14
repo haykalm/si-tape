@@ -40,6 +40,7 @@ class ReportController extends Controller
 {
     public function download_lampiran($id)
     {
+        $id = base64_decode($id);
         $namefile = P_Rentan::where('id', $id)->value('lampiran');
         $filepath = public_path('files/lampiran/'.$namefile);
 
@@ -66,6 +67,7 @@ class ReportController extends Controller
 
     public function download_nota_dinas($id)
     {
+        $id = base64_decode($id);
         $namefile = NotaDinas::where('p_rentan_id', $id)->value('file');
         $filepath = public_path('files/nota_dinas/'.$namefile);
 
@@ -277,6 +279,7 @@ class ReportController extends Controller
 
     public function event_pdf($id)
     {
+        $id = base64_decode($id);
         $data = Event::find($id);
 
         $datapr = Event::leftJoin('p_rentan', 'p_rentan.id', '=', 'events.p_rentan_id')
@@ -318,6 +321,7 @@ class ReportController extends Controller
 
     public function detail_pr_pdf($id)
     {
+        $id = base64_decode($id);
         $data =  P_Rentan::find($id);
 
         $detail_pr = P_Rentan::leftJoin('kategori_pr','kategori_pr.id', '=', 'p_rentan.kategori_pr_id')

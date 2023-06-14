@@ -19,6 +19,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use File;
+use Exception;
+use Maatwebsite\Excel\Validators\ValidationException;
+use Throwable;
+
 
 class EventController extends Controller
 {
@@ -31,7 +35,6 @@ class EventController extends Controller
         $this->year = Carbon::now()->format('Y');
         $this->Ymd_His = Carbon::now()->format('Y-m-d H:i:s');
 
-        //**order_number formating**//
         $pendataan = Pendataan::select('kode_pendataan')
             ->whereMonth('created_at', $this->month)
             ->max("kode_pendataan");
@@ -40,9 +43,7 @@ class EventController extends Controller
         if ($pendataan == null) {
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
         } else {
-            // $pendataan = Pendataan::select('kode_pendataan')
-            //     ->whereMonth('created_at', $this->month)
-            //     ->max("kode_pendataan");    
+
             $kode_pendataan = (int) substr($pendataan, 11, 16);
             $kode_pendataan++;
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
@@ -58,7 +59,7 @@ class EventController extends Controller
                 ->orderBy('e.id', 'DESC')
                 ->WhereNotNull('e.yayasan_id')
                 ->get();
-        // return $event;
+
         $yayasan = Yayasan::all();
 
         return view('event.yayasan.index',['event'=>$event,'yayasan'=>$yayasan]);
@@ -83,23 +84,25 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        // return $request; 
         date_default_timezone_set('Asia/Jakarta');
 
         $validator = Validator::make($request->all(), [
-            'event_name' => 'required',
+            'event_name' => 'required|string',
             'event_location' => 'required',
             'date' => 'required',
-            'name' => 'required',
-            'nik' => 'required|unique:p_Rentan|max:16',
-            'name_file' => 'required|max:2000',
-            'lampiran' => 'required|max:2000',
-            'file' => 'required|max:2000',
+            'name' => 'required|string',
+            'address' => 'required',
+            'nik' => 'required|unique:p_Rentan|size:16',
+            // 'name_file' => 'mimes:jpeg,png,jpg|max:2048',
+            'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
+            'file' => 'required|mimes:pdf,docx|max:2048',
         ]);
+
         if ($validator->fails()) {
             $out = [
                 "message" => $validator->messages()->all(),
-            ];
+            ];  
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
@@ -107,7 +110,7 @@ class EventController extends Controller
         }
 
         if ($request->hasfile('lampiran')) {
-            /*Add New Image*/
+
             $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
         }
@@ -119,10 +122,9 @@ class EventController extends Controller
         $save_pr->name   = $request->name;
         $save_pr->gender   = $request->gender ?? NULL;
         $save_pr->ttl   = $request->ttl ?? NULL;
+        $save_pr->address   = $request->address ?? NULL;
         $save_pr->lampiran   = $imageName ?? NULL;
         $save_pr->save();
-
-        // $yayasan = Yayasan::where('id', $request->yayasan_id)->first();
 
         $new_event = new Event;
         $new_event->p_rentan_id = $save_pr->id;
@@ -168,7 +170,6 @@ class EventController extends Controller
             $notadinas->save();
         }
 
-        // return redirect()->route('event.index')->with(Alert::success('Success', 'Data berhasil ditambahkan!'));
         return redirect()->route('event.index')->with('success', 'Successfully Add Data.');
     }
 
@@ -180,14 +181,10 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        // $image = EventImages::join('events', 'events.id', '=', 'event_images.events_id')
-        //         ->WhereNotNull('events.yayasan_id')
-        //         ->where('event_images.id',$id)
-        //         ->get();
+        
         $image = EventImages::where('events_id', $id)->get();
 
         return view('event.yayasan.show', ['image' => $image]);        
-        // return $data;
     }
 
     /**
@@ -200,10 +197,12 @@ class EventController extends Controller
     {
         $id = base64_decode($id);
         $event = Event::find($id);
+
         $oldyayasan = Event::join('yayasan', 'yayasan.id', '=', 'events.yayasan_id')
                             ->where('yayasan.id',$event->yayasan_id)
                             ->select('yayasan.id as id_yayasan','yayasan.name as name_yayasan')
                             ->first();
+
         $yayasan = Yayasan::select('*')->orderBy('id','DESC')->get();
         $date = Carbon::parse($event->date)->format('m/d/Y');
         return view('event.yayasan.edit',['event' => $event,'yayasan' => $yayasan,'oldyayasan' => $oldyayasan,'date' => $date]);
@@ -218,17 +217,17 @@ class EventController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         date_default_timezone_set('Asia/Jakarta');
 
         $validator = Validator::make($request->all(), [
-            'event_name' => 'required',
+            'event_name' => 'required|string',
             'event_location' => 'required',
-            'date' => 'required'
+            'date' => 'required',
+            // 'name_file' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
         if ($validator->fails()) {
-            $out = [
-                "message" => $validator->messages()->all(),
-            ];
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
@@ -289,23 +288,12 @@ class EventController extends Controller
 
         $data = Event::find($id);
         if ($data) {
-            $response = [
-                'status' => true,
-                'message' => 'success deleted data',
-                'data' => $data
-            ];
-            $http_code = 200;
 
             $data->delete();
 
             Alert::success('Success', 'Data berhasil dihapus!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to delete data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal dihapus!');
             return back();
@@ -314,7 +302,12 @@ class EventController extends Controller
 
     public function event_internal()
     {
-        $event = Event::WhereNull('yayasan_id')->orderBy('id', 'DESC')->get();
+        $event = DB::table('events as e')
+                ->leftJoin('p_rentan as pr', 'pr.id', '=', 'e.p_rentan_id')
+                ->select('e.id as id_event','e.event_name','e.event_location','e.date','pr.nik')
+                ->orderBy('e.id', 'DESC')
+                ->WhereNull('e.yayasan_id')
+                ->get();
 
         return view('event.internal.index',['event'=>$event]);
     }
@@ -326,19 +319,20 @@ class EventController extends Controller
 
     public function store_event_internal(Request $request)
     {
-         // return $request; 
         date_default_timezone_set('Asia/Jakarta');
 
         $validator = Validator::make($request->all(), [
-            'event_name' => 'required',
+            'event_name' => 'required|string',
             'event_location' => 'required',
             'date' => 'required',
-            'name' => 'required',
-            'nik' => 'required|unique:p_Rentan|max:16',
-            'name_file' => 'required|max:2000',
-            'lampiran' => 'required|max:2000',
-            'file' => 'required|max:2000',
+            'name' => 'required|string',
+            'address' => 'required',
+            'nik' => 'required|unique:p_Rentan|size:16',
+            // 'name_file' => 'image',
+            'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
+            'file' => 'required|mimes:pdf,docx|max:2048',
         ]);
+
         if ($validator->fails()) {
             $out = [
                 "message" => $validator->messages()->all(),
@@ -350,7 +344,7 @@ class EventController extends Controller
         }
 
         if ($request->hasfile('lampiran')) {
-            /*Add New Image*/
+
             $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
         }
@@ -362,10 +356,9 @@ class EventController extends Controller
         $save_pr->name   = $request->name;
         $save_pr->gender   = $request->gender ?? NULL;
         $save_pr->ttl   = $request->ttl ?? NULL;
+        $save_pr->address   = $request->address ?? NULL;
         $save_pr->lampiran   = $imageName ?? NULL;
         $save_pr->save();
-
-        // $yayasan = Yayasan::where('id', $request->yayasan_id)->first();
 
         $new_event = new Event;
         $new_event->p_rentan_id = $save_pr->id;
@@ -421,5 +414,60 @@ class EventController extends Controller
         $yayasan = Yayasan::select('*')->orderBy('id','DESC')->get();
         $date = Carbon::parse($event->date)->format('m/d/Y');
         return view('event.internal.edit',['event' => $event,'date' => $date,'yayasan' => $yayasan]);
+    }
+
+    public function update_event_internal(Request $request, $id)
+    {
+        
+        date_default_timezone_set('Asia/Jakarta');
+
+        $validator = Validator::make($request->all(), [
+            'event_name' => 'required|string',
+            'event_location' => 'required',
+            'date' => 'required',
+            // 'name_file' => 'image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+        if ($validator->fails()) {
+            $out = [
+                "message" => $validator->messages()->all(),
+            ];
+            foreach ($out as $key => $value) {
+                Alert::error('Failed!', $value);
+                return back();
+            }
+        }
+
+        $event = Event::where('id', $id)->first();
+
+        $event->yayasan_id = $request->yayasan_id ?? NULL;
+        $event->event_name = $request->event_name;
+        $event->event_location = $request->event_location;
+        $event->date = Carbon::parse($request->date)->format('Y-m-d');
+        $event->save();
+
+        if ($request->hasfile('name_file')) {
+            $EventImages = EventImages::where('events_id', $id)->get();
+            if ($EventImages) {
+                foreach ($EventImages as $key => $value) {
+                   File::delete(public_path().'/files/event/'. $value->name_file);
+                   $value->delete();
+                }
+            }
+
+            foreach ($request->file('name_file') as $file) {
+                $name = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path() . '/files/event/', $name);
+                $data[] = $name;
+            }
+
+            foreach ($data as $key => $value) {
+                $event_image = new EventImages;
+                $event_image->events_id    = $event->id;
+                $event_image->name_file      = $value;
+                $event_image->save();
+            }
+        }
+
+        return redirect()->route('event.internal')->with('success', 'Successfully Updated Data.');
     }
 }

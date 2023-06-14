@@ -11,48 +11,40 @@ use App\Models\{
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
+use File;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
+
     {
-        // $data = user::all();
         $data = RoleUser::select('*','role_users.name as name_category','role_users.id as id_category')
                         ->join('users','users.role_id','=','role_users.id')
+                        ->orderBy('users.id', 'DESC')
                         ->get();
+                        
         $role_user = RoleUser::all();
         return view('user.index', ['data' => $data, 'role_user' => $role_user]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required','min:3','max:100','string'],
             'email' => 'required|unique:users|max:55',
-            // 'password' => 'required',
+            'phone' => 'min:8|max:14',
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2000',
             'role_id' => 'required',
         ]);
         
@@ -60,7 +52,7 @@ class UserController extends Controller
             $out = [
             "message" => $validator->messages()->all(),
             ];
-            // return response()->json($out, 422);
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
@@ -68,52 +60,39 @@ class UserController extends Controller
 
             Alert::error('Failed!', $out);
             return back();
-
         }
+
+        if ($request->hasfile('foto')) {
+
+            $imageName = time().'_'.$request->foto->getClientOriginalName();  
+            $request->foto->move(public_path('files/users'), $imageName);
+        }
+
         $save = User::create([
             'name' => $request['name'],
             'email' => $request['email'],
             'password' => Hash::make($request['password'] ?? 'disdukcapil'),
             'phone' => $request['phone'],
             'address' => $request['address'],
-            'foto' => $request['foto'],
+            'foto' => $imageName ?? NULL,
             'role_id' => $request['role_id'],
         ]);
 
         if ($save) {
-            $response = [
-                'status' => true,
-                'message' => 'success saved data',
-                'data' => $save
-            ];
-            $http_code = 200;
 
-            Alert::success('Success', 'Admin berhasil ditambahkan!');
+            Alert::success('Success', 'User berhasil ditambahkan!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to saved data'
-            ];
-            $http_code = 422;
 
-            Alert::error('Failed', 'Admin gagal ditambahkan!');
+            Alert::error('Failed', 'User gagal ditambahkan!');
             return back();
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $data = User::find($id);
-        // $role_user = RoleUser::select('*','role_users.name as name_category','role_users.id as id_category')
-        //                 ->join('users','users.role_id','=','role_users.id')
-        //                 ->get();
+
         $role_user = RoleUser::all();
         return view('user.edit')->with([
             'data' => $data,
@@ -121,31 +100,20 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => ['required','min:3','max:80','string'],
             'email' => 'required|max:55',
+            'phone' => 'numeric',
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2000',
             'role_id' => 'required',
         ]);
         
@@ -153,7 +121,7 @@ class UserController extends Controller
             $out = [
             "message" => $validator->messages()->all(),
             ];
-            // return response()->json($out, 422);
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
@@ -164,60 +132,56 @@ class UserController extends Controller
 
         }
 
-        $save = $user->update($request->all()); 
-        if ($save) {
-            $response = [
-                'status' => true,
-                'message' => 'success updated data',
-                'data' => $save
-            ];
-            $http_code = 200;
+        if ($request->hasfile('foto')) {
+            File::delete(public_path().'/files/users/'. $user->foto);
 
-            Alert::success('Success', 'Admin berhasil diupdate!');
+            $imageName = time().'_'.$request->foto->getClientOriginalName();  
+            $request->foto->move(public_path('files/users'), $imageName);
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password) ?? $user->password;
+        $user->phone = $request->phone;
+        $user->address = $request->address;
+        $user->foto = $imageName ?? $user->foto;
+        $user->role_id = $request->role_id;
+        $user->save();
+
+        if ($user) {
+
+            Alert::success('Success', 'User berhasil diupdate!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to updated data'
-            ];
-            $http_code = 422;
 
-            Alert::error('Failed', 'Admin gagal diupdate!');
+            Alert::error('Failed', 'User gagal diupdate!');
             return back();
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $id = base64_decode($id);
         $data = User::find($id);
+        
+        $namefile = User::where('id', $id)->value('foto');
+
+        if ($namefile) {
+            File::delete(public_path().'/files/users/'. $namefile);
+        }
+        
         if ($data) {
-            $response = [
-                'status' => true,
-                'message' => 'success deleted data',
-                'data' => $data
-            ];
-            $http_code = 200;
 
             $data->delete();
 
             Alert::success('Success', 'Admin berhasil dihapus!');
             return back();
+            
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to delete data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Admin gagal dihapus!');
             return back();
+            
         }
     }
 }

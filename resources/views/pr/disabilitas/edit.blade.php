@@ -4,7 +4,7 @@
         @method('PUT')
         <div class="form-group has-feedback">
             <label style="margin-bottom: 0.5px">NIk :</label>
-            <input value="{{ $data->nik }}" type="text" name="nik" class="form-control" placeholder="Nik KTP*" required>
+            <input value="{{ $data->nik }}" type="number" name="nik" class="form-control" placeholder="Nik KTP*" required>
             <span class="glyphicon glyphicon-credit-card form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
@@ -14,12 +14,12 @@
         </div>
         <div class="form-group has-feedback">
             <label style="margin-bottom: 0.5px">TTL :</label>
-            <input value="{{ $data->ttl }}" type="text" name="ttl" class="form-control" placeholder="Bekasi, 28 Februari 1987">
+            <input value="{{ $data->ttl }}" type="text" name="ttl" class="form-control" placeholder="Bekasi, 28 Februari 1987" required>
             <span class="fa fa-birthday-cake form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
             <label style="margin-bottom: 0.5px">Alamat :</label>
-            <textarea type="text" name="address" class="form-control" placeholder="Address">{{ $data->address }}</textarea>
+            <textarea type="text" name="address" class="form-control" placeholder="Address" required>{{ $data->address }}</textarea>
             <span class="glyphicon glyphicon-map-marker form-control-feedback"></span>
         </div>
         <div class="form-group">
@@ -58,14 +58,14 @@
             </select>
         </div>
         <div class="form-group">
-            {!! Form::label('Lampiran:', '') !!}
+            {!! Form::label('Lampiran: (format:jpg,jpeg,png,pdf)', '') !!}
             <div class="input-group ">
                 <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
                 <input type="file" class="form-control has-feedback" id="lampiran" name="lampiran">
             </div>
         </div>
         <div class="form-group">
-            {!! Form::label('Nota Dinas:', '') !!}
+            {!! Form::label('Nota Dinas: (format:pdf,docx)', '') !!}
             <div class="input-group ">
                 <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
                 <input type="file" class="form-control has-feedback" id="file" name="file">

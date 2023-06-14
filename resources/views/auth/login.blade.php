@@ -31,40 +31,45 @@
 <body class="hold-transition register-page">
 <div class="login-box">
   <div class="login-logo">
-    <a href="../../index2.html"><b>SI</b>-TANPAN</a>
+    <a ><b>SI</b>-TANPAN</a>
   </div>
   <!-- /.login-logo -->
-  <div class="login-box-body">
-    <p class="login-box-msg">Login to Acces</p>
+  <div class="login-box-body" style="border-radius: 5px">
+    <p class="login-box-msg">Login to Access</p>
 
     <form action="{{ route('login') }}" method="POST">
       @csrf
         <div class="form-group has-feedback">
-            <input type="email" name="email" class="form-control" placeholder="Email">
+            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email">
             <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+            @error('email')
+              <span class="invalid-feedback" role="alert">
+                <strong style="color: red;">{{ $message }}</strong>
+              </span>
+            @enderror
         </div>
         <div class="form-group has-feedback">
-            <input type="password" name="password" class="form-control" placeholder="Password">
+            <input type="password" name="password" class="form-control  @error('password') is-invalid @enderror" placeholder="Password">
             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            @error('password')
+                <span class="invalid-feedback" role="alert">
+                    <strong style="color: red;">{{ $message }}</strong>
+                </span>
+            @enderror
         </div>
+        <br>
         <div class="row">
-            <div class="col-xs-8">
-                <div class="checkbox icheck">
-                    <label>
-                        <input type="checkbox"> Remember Me
-                    </label>
-                </div>
-            </div>
+            {{--<!-- <div class="col-xs-8">
+              @if (Route::has('password.request'))
+                <a class="btn btn-link" href="{{ route('password.request') }}">
+                  {{ __('Forgot Your Password?') }}
+                </a>
+              @endif
+            </div> --> --}}
             <!-- /.col -->
-            <div class="col-xs-4">
-                <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+            <div class="col-xs-8" style="margin-left: 59px;">
+                <button type="submit" class="btn btn-primary btn-block btn-flat" style="border-radius: 5px">Sign In</button>
             </div>
-            <!-- /.col -->
-            @if (Route::has('password.request'))
-              <a class="btn btn-link" href="{{ route('password.request') }}">
-                {{ __('Forgot Your Password?') }}
-              </a>
-            @endif
         </div>
     </form>
 

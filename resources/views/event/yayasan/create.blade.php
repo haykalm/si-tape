@@ -1,18 +1,18 @@
 @extends('layouts.master')
 
 @section('title')
-    Create Kegiatan Yayasan
+    Create Kegiatan Per-yayasan
 @endsection
 
 @section('content')
-<div class="content-wrapper">
+<div class="content-wrapper" style="border-radius: 7px">
 	<div class="box-body">
-        <h3 class="box-title"><i><u>Tambah Kegiatan Yayasan</u></i></h3>
+        <h3 class="box-title"><i>Tambah Kegiatan Per-yayasan</i></h3>
 		<div class="row">
 		    <div class="col-lg-12">
 		        <div class="box" style="border-radius: 5px">
 
-		            {!! Form::open(['url'=>url('/event'),'method'=>'POST', 'files'=>'true', 'class'=>'form-horizontal', 'autocomplete'=>'off']) !!}
+		            {!! Form::open(['url'=>url('/event'),'method'=>'POST', 'enctype'=>'multipart/form-data', 'files'=>'true', 'class'=>'form-horizontal', 'autocomplete'=>'off']) !!}
 		            <div class="row">
 		                <div class="col-md-12">
 		                    <div class="panel panel-primary">
@@ -61,7 +61,7 @@
 		                                                	<div class="input-group-addon">
 		                                                		<i class="fa fa-calendar"></i>
 		                                                	</div>
-		                                                	<input name="date" type="text" class="form-control pull-right" id="datepicker">
+		                                                	<input name="date" type="text" class="form-control pull-right" id="datepicker" required>
 		                                                	<span class="fa  fa-calendar-plus-o form-control-feedback"></span>
 		                                                </div>
 		                                            </div>
@@ -76,8 +76,8 @@
 		                                                    <span class="input-group-addon"><i class="fa fa-bank"></i></span>
 		                                                    <select class="form-control select2" name="yayasan_id" id="yayasan_id" style="width: 100%;" required> 
 		                                                        <option value=""><b>pilih yayasan :</b></option>
-		                                                        @foreach($yayasan as $yayasan)                   
-		                                                          <option value="{{ $yayasan->id }}">{{ $yayasan->name }}</option>
+		                                                        @foreach($yayasan as $data => $yayasan)                   
+		                                                          <option value="{{ $yayasan->id }}">{{ $data+1 }}. {{ $yayasan->name }}</option>
 		                                                        @endforeach              
 		                                                    </select>
 		                                                    </span>
@@ -91,10 +91,10 @@
 		                                 <div class="form-group">	{{-- kanan --}}
 		                                        <div class="col-md-12" >
 		                                            <div class="col-md-12 field_wrapper" >
-		                                                {!! Form::label('Gambar Kegiatan:', '') !!}
+		                                                {!! Form::label('Gambar Kegiatan: (format:jpg,jpeg,png)', '') !!}
 		                                                <div class="input-group ">
 		                                                    <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
-		                                                    <input type="file" class="form-control has-feedback" value="" id="name_file[]" name="name_file[]" required>
+		                                                    <input type="file" class="form-control has-feedback" value="" id="name_file[]" name="name_file[]">
 		                                                    <span class="input-group-addon" style="background-color: #007fff;">
 		                                                        <a href="javascript:void(0);" class="add_button" title="Add field"><i class="fa fa-plus" style="color:white;"></i></a>
 		                                                    </span>
@@ -121,7 +121,7 @@
 		                        	<table class="table" style="width: 984px;border:0px solid #333;border-collapse:collapse;margin:0 auto;vertical-align: middle;text-align: center;background-color: #d5d5d5;">
 		                        		<tr style="padding:10px;border:0px solid #333;width:100px;height: 20px;font-size: 20px;">
 		                        			<td>
-		                        				DATA WARGA
+		                        				DATA PENDUDUK RENTAN
 		                        			</td>
 		                        		</tr>
 		                        	</table>
@@ -135,7 +135,7 @@
 		                                                {!! Form::label('Nik:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-credit-card"></i></span>
-		                                                    <input type="text" class="form-control  has-feedback" value="" id="nik" name="nik" required>
+		                                                    <input type="number" class="form-control  has-feedback" value="" id="nik" name="nik" required>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -200,10 +200,10 @@
 		                                	<div class="form-group">
 		                                			<div class="col-md-12" >
 		                                				<div class="col-md-12">
-		                                					{!! Form::label('Lampiran:', '') !!}
+		                                					{!! Form::label('Lampiran: (format:jpg,jpeg,png,pdf)', '') !!}
 		                                					<div class="input-group ">
 		                                						<span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
-		                                						<input type="file" class="form-control has-feedback" id="lampiran" name="lampiran" required>
+		                                						<input type="file" class="form-control has-feedback" id="lampiran" name="lampiran">
 		                                					</div>
 		                                				</div>
 		                                			</div>
@@ -212,7 +212,7 @@
 		                                	<div class="form-group">
 	                                			<div class="col-md-12" >
 	                                				<div class="col-md-12">
-	                                					{!! Form::label('Nota Dinas:', '') !!}
+	                                					{!! Form::label('Nota Dinas: (format:pdf,docx)', '') !!}
 	                                					<div class="input-group ">
 	                                						<span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
 	                                						<input type="file" class="form-control has-feedback" id="file" name="file" required>

@@ -3,15 +3,15 @@
         @csrf
         @method('PUT')
         <div class="form-group has-feedback">
-            <input value="{{ $data->name }}" type="name" name="name" class="form-control" placeholder="Name*" required>
+            <input value="{{ $data->name }}" type="name" name="name" class="form-control" placeholder="Name" required>
             <span class="fa fa-bank form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
-            <input value="{{ $data->phone }}" type="text" name="phone" class="form-control" placeholder="Phone/WA">
+            <input value="{{ $data->phone }}" type="number" name="phone" class="form-control" placeholder="Phone/WA">
             <span class="glyphicon glyphicon-phone form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
-            <textarea type="text" name="address" class="form-control" placeholder="Address">{{ $data->address }}</textarea>
+            <textarea type="text" name="address" class="form-control" placeholder="Address" required>{{ $data->address }}</textarea>
             <span class="glyphicon glyphicon-map-marker form-control-feedback"></span>
         </div>
 
@@ -23,10 +23,6 @@
         		@endforeach()
 
         	</select>
-        </div>
-        <div class="form-group">
-            <label for="exampleInputFile">File input</label>
-            <input name="foto" type="file" id="exampleInputFile">
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>

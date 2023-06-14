@@ -84,4 +84,5 @@ Route::middleware(['auth'])->group(function () {
 	Route::get('/create_event_internal', [EventController::class, 'create_event_internal'])->name('create_event.internal');
 	Route::post('/store_event_internal', [EventController::class, 'store_event_internal'])->name('store_event.internal');
 	Route::get('/edit_event_internal/{id}', [EventController::class, 'edit_event_internal'])->name('edit_event.internal');
+	Route::put('/update_event_internal/{id}', [EventController::class, 'update_event_internal'])->name('update_event.internal');
 });

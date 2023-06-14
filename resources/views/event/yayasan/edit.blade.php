@@ -5,14 +5,14 @@
 @endsection
 
 @section('content')
-<div class="content-wrapper">
+<div class="content-wrapper" style="border-radius: 7px">
 	<div class="box-body">
-        <h3 class="box-title"><i><u>Edit Kegiatan Yayasan</u></i></h3>
+        <h3 class="box-title"><i>Edit Kegiatan Yayasan</i></h3>
 		<div class="row">
 		    <div class="col-lg-12">
 		        <div class="box" style="border-radius: 5px">
 
-		            {!! Form::open(['url'=>url('/event',$event->id),'method'=>'PUT', 'files'=>'true', 'class'=>'form-horizontal', 'autocomplete'=>'off']) !!}
+		            {!! Form::open(['url'=>url('/event',$event->id),'method'=>'PUT','enctype'=>'multipart/form-data', 'files'=>'true', 'class'=>'form-horizontal', 'autocomplete'=>'off']) !!}
 		            <div class="row">
 		                <div class="col-md-12">
 		                    <div class="panel panel-primary">
@@ -52,7 +52,7 @@
 		                                                	<div class="input-group-addon">
 		                                                		<i class="fa fa-calendar"></i>
 		                                                	</div>
-		                                                	<input name="date" value="{{ $date }}" type="text" class="form-control pull-right" id="datepicker">
+		                                                	<input name="date" value="{{ $date }}" type="text" class="form-control pull-right" id="datepicker" required>
 		                                                	<span class="fa  fa-calendar-plus-o form-control-feedback"></span>
 		                                                </div>
 		                                            </div>
@@ -65,11 +65,11 @@
 		                                                {!! Form::label('Yayasan:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-bank"></i></span>
-		                                                    <select class="form-control select2" name="yayasan_id" id="yayasan_id" style="width: 100%;" required> 
+		                                                    <select class="form-control select2" name="yayasan_id" id="yayasan_id" style="width: 100%;"> 
 		                                                        <option value="{{$oldyayasan->id_yayasan}}"><b>{{$oldyayasan->name_yayasan}}</b></option>
 		                                                        <option value=""></option>
-		                                                        @foreach($yayasan as $yayasan)                   
-		                                                          <option value="{{ $yayasan->id }}">{{ $yayasan->name }}</option>
+		                                                        @foreach($yayasan as $data => $yayasan)                   
+		                                                          <option value="{{ $yayasan->id }}">{{$data+1}}. {{ $yayasan->name }}</option>
 		                                                        @endforeach              
 		                                                    </select>
 		                                                    </span>
@@ -85,7 +85,7 @@
 		                                    <div class="form-group" id="frm-add-data">
 		                                        <div class="col-md-12" >
 		                                            <div class="col-md-12 field_wrapper" >
-		                                                {!! Form::label('Gambar:', '') !!}
+		                                                {!! Form::label('Gambar: (format:jpg,jpeg,png)', '') !!}
 		                                                <div class="input-group ">
 		                                                    <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
 		                                                    <input type="file" class="form-control has-feedback" value="" id="name_file[]" name="name_file[]">

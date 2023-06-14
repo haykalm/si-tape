@@ -8,7 +8,7 @@
 
 <!-- DataTales Example -->
 
-<div class="content-wrapper">
+<div class="content-wrapper" style="border-radius: 7px">
     <div class="card-header">
         <section class="content-header">
             <div class="row">
@@ -18,7 +18,7 @@
                             <h3 class="box-title">List Yayasan Panti Asuhan</h3>
                         </div>
                         <div class="box-body">
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default" title="Add Admin">
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default" title="Add">
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </button>
@@ -100,8 +100,8 @@
 
 <!-- create Modal-->
 <div class="modal fade" id="modal-default">
-	<div class="modal-dialog">
-		<div class="modal-content">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content" style="border-radius: 7px">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title">Add yayasan</h4>
@@ -110,24 +110,18 @@
 				@csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <select class="form-control select2 select2-hidden-accessible" name="kategori_pr_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
-                            <option value=""><b>select kategori : </b></option>
-                            @foreach($kategori_pr as $data => $value)
-                            <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
-                            @endforeach()
-
-                        </select>
+                        <input type="hidden" name="kategori_pr_id" value="2" class="form-control" required>
                     </div>
                     <div class="form-group has-feedback">
-                        <input type="text" name="name" class="form-control" placeholder="Name Yayasan*" required>
+                        <input type="text" name="name" class="form-control" placeholder="Nama Yayasan" required>
                         <span class="fa fa-bank form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
-                        <input type="text" name="phone" class="form-control" placeholder="Phone/WA">
+                        <input type="number" name="phone" class="form-control" placeholder="Phone/WA">
                         <span class="glyphicon glyphicon-phone form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
-                        <textarea type="text" name="address" class="form-control" placeholder="Address"></textarea>
+                        <textarea type="text" name="address" class="form-control" placeholder="Address" required></textarea>
                         <span class="glyphicon glyphicon-map-marker form-control-feedback"></span>
                     </div>
                 </div>
@@ -145,8 +139,8 @@
 
 <!-- Modal master to edit and update-->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius: 7px">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Edit yayasan</h5>
             </div>
