@@ -8,7 +8,7 @@
 
 <!-- DataTales Example -->
 
-<div class="content-wrapper">
+<div class="content-wrapper" style="border-radius: 7px">
     <div class="card-header">
         <section class="content-header">
             <div class="row">
@@ -62,7 +62,7 @@
                             <h3 class="box-title">List Disabilitas</h3>
                         </div>
                         <div class="box-body">
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default" title="Add Admin">
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default" title="Add">
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
                             </button>
@@ -103,28 +103,34 @@
                     @if(!empty($disabilitas))
 
                         @foreach($disabilitas as $data => $value)
-                        <tr style="text-align:center;font-size: 13px;">
+                        <tr style="text-align:center;font-size: 12px;">
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
                             <td style="vertical-align: middle;">{{ $value->nik }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->name }}</td>
                             <td style="vertical-align: middle;">{{ $value->ttl }}</td>
-                            <td style="vertical-align: middle;">{{ $value->address }}</td>
+                            <td style="text-transform: lowercase;vertical-align: middle;">{{ $value->address }}</td>
                             <td style="vertical-align: middle;">{{ $value->gender }}</td>
                             
-                            <td style="display: flex;justify-content:center;">
-                                <a href="{{url('/download_lampiran', $value->id)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 3px">
-                                   <li type="button" class="fa fa-cloud-download" ></li>
+                            <td style="display: flex;justify-content:center;vertical-align: middle;text-decoration: none;">
+                                <a href="{{url('/download_lampiran', base64_encode($value->id),)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 2px">
+                                    <li type="button" class="fa fa-cloud-download" ></li>
                                 </a>
-                                <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 3px">
-                                   <li type="submit" class="fa fa-pencil" ></li>
-                               </a>
-                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post" style="text-decoration: none;">
+                                <a href="{{url('/download_nota_dinas', base64_encode($value->id),)}}" class="btn bg-purple btn-xs show_confirm" title="download nota dinas" style="margin-right: 2px">
+                                    <li type="button" class="fa fa-download" ></li>
+                                </a>
+                                <a href="{{url('/detail_pr_pdf', base64_encode($value->id),)}}" class="btn bg-orange btn-xs show_confirm" target="_blank" title="download detail" style="margin-right: 2px">
+                                    <li type="button" class="glyphicon glyphicon-download"></li>
+                                </a>
+                                <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 2px">
+                                    <li type="submit" class="fa fa-pencil" ></li>
+                                </a>
+                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post">
                                     @csrf
                                     @method('delete')
-                                   <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Delete" style="text-decoration: none;">
-                                       <li class="fa fa-trash" ></li>
-                                   </button>
-                               </form>
+                                    <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Hapus" style="text-decoration: none;">
+                                        <li class="fa fa-trash" ></li>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
 
@@ -144,12 +150,12 @@
 <!-- create Modal-->
 <div class="modal fade" id="modal-default">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius: 7px">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Add Penduduk Rentan</h4>
             </div>
-            <form method="POST" action="{{url('/penduduk')}}" enctype="multipart/form-data">
+            <form method="POST" action="{{url('/penduduk')}}" enctype="multipart/form-data" autocomplete="off">
                 @csrf
                 <div class="modal-body">
                     <!-- <p>One fine body&hellip;</p> -->
@@ -158,7 +164,7 @@
                     </div>
                     <div class="form-group has-feedback">
                         <label style="margin-bottom: 0.5px">NIk :</label>
-                        <input type="text" name="nik" class="form-control" placeholder="Nik KTP*" required>
+                        <input type="number" name="nik" class="form-control" placeholder="Nik KTP*" required>
                         <span class="glyphicon glyphicon-credit-card form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
@@ -168,21 +174,26 @@
                     </div>
                     <div class="form-group has-feedback">
                         <label style="margin-bottom: 0.5px">TTL :</label>
-                        <input type="text" name="ttl" class="form-control" placeholder="Bekasi, 28 Februari 1987">
+                        <input type="text" name="ttl" class="form-control" placeholder="Bekasi, 28 Februari 1987" required>
                         <span class="fa fa-birthday-cake form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
                         <label style="margin-bottom: 0.5px">Alamat :</label>
-                        <textarea type="text" name="address" class="form-control" placeholder="Address"></textarea>
+                        <textarea type="text" name="address" class="form-control" placeholder="Address" required></textarea>
                         <span class="glyphicon glyphicon-map-marker form-control-feedback"></span>
                     </div>
                     <div class="form-group">
                         <label style="margin-bottom: 0.5px">Jenis Kelamin :</label>
-                        <select class="form-control select2 select2-hidden-accessible" name="gender" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
-                            <option value=""><b>select gender :</b></option>
-                            <option value="male">1. male (pria)</option>
-                            <option value="female">2. female (wanita)</option>
-                        </select>
+                        <div class="radio">
+                            <label style="margin-right: 10px">
+                                <input type="radio" name="gender" id="gender" value="male" checked="">
+                                male (pria)
+                            </label>
+                            <label>
+                                <input type="radio" name="gender" id="gender" value="female" checked="">
+                                female (wanita)
+                            </label>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label style="margin-bottom: 0.5px">Yayasan :</label>
@@ -194,8 +205,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="lampiran">lampiran :</label>
-                        <input type="file" name="lampiran" id="lampiran">
+                        {!! Form::label('Lampiran: (format:jpg,jpeg,png,pdf)', '') !!}
+                        <div class="input-group ">
+                            <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                            <input type="file" class="form-control has-feedback" id="lampiran" name="lampiran">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {!! Form::label('Nota Dinas: (format:pdf,docx)', '') !!}
+                        <div class="input-group ">
+                            <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                            <input type="file" class="form-control has-feedback" id="file" name="file" required>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -215,7 +236,7 @@
 <!-- Modal master to edit and update-->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius: 7px">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Edit disabilitas</h5>
             </div>

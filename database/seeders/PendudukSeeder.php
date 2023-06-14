@@ -20,7 +20,7 @@ class PendudukSeeder extends Seeder
 
     	$faker = Faker::create('id_ID');
 
-    	for ($i=1; $i <= 150; $i++) { 
+    	for ($i=1; $i <= 100; $i++) { 
     		// $date = $faker->date('Y-m-d', '-65 years', '-18 years');
     		// $formattedDate = date('M d, Y', strtotime($date));
     		// $date = Carbon::parse()->format('d-m-Y');
@@ -33,7 +33,7 @@ class PendudukSeeder extends Seeder
     			'address' => $faker->address,
     			'gender' => $faker->randomElement(['male', 'female']),
     			'ttl' => $faker->randomElement(['Jakarta, 21 februari 1999', 'bekasi, 30 september 1997','tangerang, 19 oktober 1987','depok, 19  maret 2000','bogor, 17 april 1977']),
-    			'phone' => $faker->unique()->numberBetween(62812345500, 62812346000)
+    			// 'phone' => $faker->unique()->numberBetween(62812345500, 62812346000)
     		]);
     	}
     }

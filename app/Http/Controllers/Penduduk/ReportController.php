@@ -9,7 +9,8 @@ use App\Models\{
     P_Rentan,
     Yayasan,
     Event,
-    EventImages
+    EventImages,
+    NotaDinas,
 };
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -39,6 +40,7 @@ class ReportController extends Controller
 {
     public function download_lampiran($id)
     {
+        $id = base64_decode($id);
         $namefile = P_Rentan::where('id', $id)->value('lampiran');
         $filepath = public_path('files/lampiran/'.$namefile);
 
@@ -59,6 +61,33 @@ class ReportController extends Controller
             $http_code = 422;
 
             Alert::error('Failed', 'lampiran belum di upload!');
+            return back();
+        }
+    }
+
+    public function download_nota_dinas($id)
+    {
+        $id = base64_decode($id);
+        $namefile = NotaDinas::where('p_rentan_id', $id)->value('file');
+        $filepath = public_path('files/nota_dinas/'.$namefile);
+
+        if (!empty($namefile)){
+            $response = [
+                'status' => true,
+                'message' => 'success downloaded file',
+                'data' => $filepath
+            ];
+            $http_code = 200;
+            // return Storage::download($filepath);
+            return Response::download($filepath); 
+        } else {
+            $response = [
+                'status' => false,
+                'message' => 'Failed to download file'
+            ];
+            $http_code = 422;
+
+            Alert::error('Failed', 'Nota Dinas belum di upload!');
             return back();
         }
     }
@@ -250,7 +279,14 @@ class ReportController extends Controller
 
     public function event_pdf($id)
     {
+        $id = base64_decode($id);
         $data = Event::find($id);
+
+        $datapr = Event::leftJoin('p_rentan', 'p_rentan.id', '=', 'events.p_rentan_id')
+                    ->leftJoin('pendataan', 'pendataan.p_rentan_id', '=', 'events.p_rentan_id')
+                    ->select('p_rentan.name', 'p_rentan.nik', 'pendataan.kode_pendataan')
+                    ->where('events.p_rentan_id', $data->p_rentan_id)
+                    ->first();
 
         $image = EventImages::select('name_file')->where('events_id',$id)->get();
 
@@ -259,7 +295,46 @@ class ReportController extends Controller
         $date = Carbon::parse($data->date)->format('d-M-Y');
 
         $namefile = $data->event_name . '_' . $date;
-        $pdf = PDF::loadView('report/event_pdf',['data'=>$data,'image'=>$image,'yayasan'=>$yayasan,'date'=>$date])->setPaper('f4', 'portrait');
+        $pdf = PDF::loadView('report/event_pdf',[
+                'data'=>$data,
+                'image'=>$image,
+                'yayasan'=>$yayasan,
+                'date'=>$date,
+                'datapr'=>$datapr])
+                ->setPaper('legal', 'portrait');
+
+        return $pdf->stream(''. $namefile .'.pdf');
+    }
+
+    public function yayasan_pdf()
+    {
+        $yayasan = Yayasan::join('kategori_pr', 'kategori_pr.id', '=', 'yayasan.kategori_pr_id')
+                    ->select('yayasan.*','kategori_pr.name as name_category')
+                    ->get();
+        // return $yayasan;
+
+
+        $namefile = 'all_yayasan';
+        $pdf = PDF::loadView('report/all_yayasan_pdf',['yayasan'=>$yayasan])->setPaper('f4', 'portrait');
+        return $pdf->stream(''. $namefile .'.pdf');
+    }
+
+    public function detail_pr_pdf($id)
+    {
+        $id = base64_decode($id);
+        $data =  P_Rentan::find($id);
+
+        $detail_pr = P_Rentan::leftJoin('kategori_pr','kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+                    ->leftJoin('pendataan','pendataan.p_rentan_id', '=', 'p_rentan.id')
+                    ->select('p_rentan.*', 'kategori_pr.name as name_category', 'pendataan.kode_pendataan')
+                    ->where('p_rentan.id',$id)
+                    ->first();
+
+        $yayasan = Yayasan::where('id',$data->yayasan_id)->first();
+
+        $namefile = $data->name;
+
+        $pdf = PDF::loadView('report/detail_pr_pdf',['yayasan'=>$yayasan,'detail_pr'=>$detail_pr])->setPaper('f4', 'portrait');
         return $pdf->stream(''. $namefile .'.pdf');
     }
 }

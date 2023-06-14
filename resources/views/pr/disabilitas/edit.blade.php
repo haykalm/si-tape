@@ -4,7 +4,7 @@
         @method('PUT')
         <div class="form-group has-feedback">
             <label style="margin-bottom: 0.5px">NIk :</label>
-            <input value="{{ $data->nik }}" type="text" name="nik" class="form-control" placeholder="Nik KTP*" required>
+            <input value="{{ $data->nik }}" type="number" name="nik" class="form-control" placeholder="Nik KTP*" required>
             <span class="glyphicon glyphicon-credit-card form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
@@ -14,26 +14,32 @@
         </div>
         <div class="form-group has-feedback">
             <label style="margin-bottom: 0.5px">TTL :</label>
-            <input value="{{ $data->ttl }}" type="text" name="ttl" class="form-control" placeholder="Bekasi, 28 Februari 1987">
+            <input value="{{ $data->ttl }}" type="text" name="ttl" class="form-control" placeholder="Bekasi, 28 Februari 1987" required>
             <span class="fa fa-birthday-cake form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
             <label style="margin-bottom: 0.5px">Alamat :</label>
-            <textarea type="text" name="address" class="form-control" placeholder="Address">{{ $data->address }}</textarea>
+            <textarea type="text" name="address" class="form-control" placeholder="Address" required>{{ $data->address }}</textarea>
             <span class="glyphicon glyphicon-map-marker form-control-feedback"></span>
         </div>
         <div class="form-group">
             <label style="margin-bottom: 0.5px">Jenis Kelamin :</label>
-            <select class="form-control select2 select2-hidden-accessible" name="gender" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
-                <option value=""><b>select gender :</b></option>
-                <option value="male">1. male (pria)</option>
-                <option value="female">2. female (wanita)</option>
-            </select>
+            <div class="radio">
+                <label style="margin-right: 10px">
+                    <input type="radio" name="gender" id="gender" value="male" checked="">
+                    male (pria)
+                </label>
+                <label>
+                    <input type="radio" name="gender" id="gender" value="female" checked="">
+                    female (wanita)
+                </label>
+            </div>
         </div>
         <div class="form-group">
             <label style="margin-bottom: 0.5px">Kategori :</label>
             <select class="form-control select2 select2-hidden-accessible" name="kategori_pr_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" required>
-                <option value=""><b>pilih kategori :</b></option>
+                <option value="{{$old_kategori_pr->id}}">{{$old_kategori_pr->name}}</option>
+                <option value=""></option>
                 @foreach($kategori_pr as $data => $value)
                 <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
                 @endforeach()
@@ -42,15 +48,28 @@
         <div class="form-group">
             <label style="margin-bottom: 0.5px">Yayasan :</label>
             <select class="form-control select2 select2-hidden-accessible" name="yayasan_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
-                <option value=""><b>pilih yayasan :</b></option>
+                @if($old_yayasan)
+                    <option value="{{$old_yayasan->id}}">{{$old_yayasan->name}}</option>
+                @endif()
+                <option value=""></option>
                 @foreach($yayasan as $data => $value)
                 <option value="{{$value['id']}}">{{$data+1}}. {{$value['name']}}</option>
                 @endforeach()
             </select>
         </div>
         <div class="form-group">
-            <label for="lampiran">lampiran :</label>
-            <input type="file" name="lampiran" id="lampiran">
+            {!! Form::label('Lampiran: (format:jpg,jpeg,png,pdf)', '') !!}
+            <div class="input-group ">
+                <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                <input type="file" class="form-control has-feedback" id="lampiran" name="lampiran">
+            </div>
+        </div>
+        <div class="form-group">
+            {!! Form::label('Nota Dinas: (format:pdf,docx)', '') !!}
+            <div class="input-group ">
+                <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
+                <input type="file" class="form-control has-feedback" id="file" name="file">
+            </div>
         </div>
         
         <div class="modal-footer">

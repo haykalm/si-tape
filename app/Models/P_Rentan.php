@@ -18,11 +18,7 @@ class P_Rentan extends Model
         'name',
         'gender',
         'ttl',
-        'phone',
-        'foto',
         'lampiran',
-        'address',
-        'created_by',
-        'modified_by',
+        'address'
     ];
 }

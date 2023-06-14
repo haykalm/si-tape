@@ -22,24 +22,32 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Haykal',
             'email' => 'haykal@gmail.com',
+            'phone' => '083806605069',
+            'address' => 'Babelan - Bekasi',
             'password' =>  Hash::make('password'),
             'role_id' => 1
         ]);
         User::create([
             'name' => 'Ian',
             'email' => 'ian@gmail.com',
+            'phone' => '085806605068',
+            'address' => 'medan satria - Bekasi',
             'password' =>  Hash::make('password'),
             'role_id' => 1
         ]);
         User::create([
-            'name' => 'siti',
-            'email' => 'siti@gmail.com',
+            'name' => 'ponco',
+            'email' => 'ponco@gmail.com',
+            'phone' => '081806605064',
+            'address' => 'bekasi utara - Bekasi',
             'password' =>  Hash::make('password'),
             'role_id' => 2
         ]);
         User::create([
             'name' => 'ahmad',
             'email' => 'ahmad@gmail.com',
+            'phone' => '088806605063',
+            'address' => 'bekasi timur - Bekasi',
             'password' =>  Hash::make('password'),
             'role_id' => 2
         ]);

@@ -9,6 +9,11 @@ use App\Models\{
     KategoriPR,
     P_Rentan,
     Yayasan,
+    Pendataan,
+    PendataanHistory,
+    NotaDinas,
+    Event,
+    EventImages,
 };
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -18,24 +23,40 @@ use App\Exports\PendudukExport;
 use App\Imports\PendudukImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-use Session;
-use Throwable;
 use File;
 // use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 
 class PendudukController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+   public function __construct()
+    {
+        $this->middleware('auth');
+
+        $this->monthyear = Carbon::now()->format('mY');
+        $this->month = Carbon::now()->format('m');
+        $this->year = Carbon::now()->format('Y');
+        $this->Ymd_His = Carbon::now()->format('Y-m-d H:i:s');
+
+        //**order_number formating**//
+        $pendataan = Pendataan::select('kode_pendataan')
+            ->whereMonth('created_at', $this->month)
+            ->max("kode_pendataan");
+
+        $kode_pendataan = [];
+        if ($pendataan == null) {
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
+            
+        } else {
+            $kode_pendataan = (int) substr($pendataan, 11, 16);
+            $kode_pendataan++;
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
+        }
+    }
+
     public function index()
     {
-        // $disabilitas = P_Rentan::where('kategori_pr_id', 3)
-        //             ->orderBy('id', 'DESC')
-        //             ->get();
         $disabilitas = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
                 ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
@@ -50,31 +71,27 @@ class PendudukController extends Controller
         return view('pr.disabilitas.index',['disabilitas'=>$disabilitas,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        // return $request;
         date_default_timezone_set('Asia/Jakarta');
+        // $validator = $request->validated();
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'nik' => 'required|unique:p_Rentan|max:16',
+            'name' => ['required','min:3','max:100'],
+            'nik' => 'required|unique:p_Rentan|size:16',
+            'ttl' => 'required',
+            'address' => 'required',
+            'gender' => 'required',
+            'kategori_pr_id' => 'required',
+            'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
+            'file' => 'required|mimes:pdf,docx|max:2048',
         ]);
+
         if ($validator->fails()) {
             $out = [
                 "message" => $validator->messages()->all(),
@@ -84,205 +101,184 @@ class PendudukController extends Controller
                 return back();
             }
         }
-        if ($request->hasfile('lampiran')) {
-            $validator = Validator::make($request->all(), [
-                'lampiran' => 'required|mimes:png,jpg,jpeg,pdf|max:1000',
-            ]);
-            if ($validator->fails()) {
-                $out = [
-                    "message" => $validator->messages()->all(),
-                ];
-                foreach ($out as $key => $value) {
-                    Alert::error('Failed!', $value);
-                    return back();
-                }
-            }
-        }
 
-        /*Add New Image*/
-        $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
-        $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        if ($request->hasfile('lampiran')) {
+
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        }
 
         // insert data
         $save_pr = New P_Rentan;
-        $save_pr->yayasan_id   = $request->yayasan_id;
+        $save_pr->yayasan_id   = $request->yayasan_id ?? NULL;
         $save_pr->kategori_pr_id   = $request->kategori_pr_id;
         $save_pr->nik   = $request->nik;
         $save_pr->name   = $request->name;
-        $save_pr->gender   = $request->gender;
-        $save_pr->ttl   = $request->ttl;
-        $save_pr->phone   = $request->phone;        
-        $save_pr->lampiran   = $imageName;
+        $save_pr->gender   = $request->gender ?? NULL;
+        $save_pr->ttl   = $request->ttl ?? NULL;
+        $save_pr->address   = $request->address ?? NULL;
+        $save_pr->lampiran   = $imageName ?? NULL;
         $save_pr->save();
 
+        $pendataan = new Pendataan;
+        $pendataan->p_rentan_id = $save_pr->id;
+        $pendataan->kode_pendataan = $this->kode_pendataan;
+        $pendataan->save();
+
+        $pendataan_h = new PendataanHistory;
+        $pendataan_h->pendataan_id = $pendataan->id;
+        $pendataan_h->pendataan_date = $this->Ymd_His;
+        $pendataan_h->save();
+
+        if ($request->hasfile('file')) {
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+
+            $notadinas = new NotaDinas;
+            $notadinas->yayasan_id = $request->yayasan_id ?? NULL;
+            $notadinas->p_rentan_id = $save_pr->id;
+            $notadinas->file = $Name;
+            $notadinas->save();
+        }
+
         if ($save_pr) {
-            $response = [
-                'status' => true,
-                'message' => 'success saved data',
-                'data' => $save_pr
-            ];
-            $http_code = 200;
 
             Alert::success('Success', 'Data berhasil ditambahkan!');
             return back();
+
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to saved data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal ditambahkan!');
             return back();
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $data = P_Rentan::find($id);
         $kategori_pr = KategoriPR::all();
+        $old_kategori_pr = KategoriPR::where('id',$data->kategori_pr_id)->first();
         $yayasan = Yayasan::all();
-        return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'yayasan' => $yayasan]);
+        $old_yayasan = Yayasan::where('id',$data->yayasan_id)->first();
+
+        return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'old_kategori_pr' => $old_kategori_pr,'yayasan' => $yayasan,'old_yayasan' => $old_yayasan]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'nik' => 'required|max:16',
+            'name' => ['required','min:3','max:100'],
+            'nik' => 'required|size:16',
+            'ttl' => 'required',
+            'address' => 'required',
+            'gender' => 'required',
+            'kategori_pr_id' => 'required',
+            'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
+            'file' => 'mimes:pdf,docx|max:2048',
         ]);
         
         if ($validator->fails()) {
             $out = [
             "message" => $validator->messages()->all(),
             ];
-            // return response()->json($out, 422);
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
             }
         }
-        if ($request->hasfile('lampiran')) {
-            $validator = Validator::make($request->all(), [
-                'lampiran' => 'required|mimes:png,jpg,jpeg,pdf|max:2000',
-            ]);
-            if ($validator->fails()) {
-                $out = [
-                    "message" => $validator->messages()->all(),
-                ];
-                foreach ($out as $key => $value) {
-                    Alert::error('Failed!', $value);
-                    return back();
-                }
-            }
-        }
 
         $penduduk = P_Rentan::where('id', $id)->first();
+        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
 
         if ($request->hasfile('lampiran')) {
-            /*Delete Image*/
+
             File::delete(public_path().'/files/lampiran/'. $penduduk->lampiran);
-            /*Add New Image*/
+
             $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
-            /*Modify Bank Code*/
-            $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
-            $penduduk->kategori_pr_id = $request->kategori_pr_id;
-            $penduduk->nik = $request->nik;
-            $penduduk->name = $request->name;
-            $penduduk->gender = $request->gender;
-            $penduduk->ttl = $request->ttl;
-            $penduduk->phone = $request->phone;        
-            $penduduk->lampiran = $imageName;
-            $penduduk->save();
-        } else {
-            /*Modify Bank Code*/
-            $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
-            $penduduk->kategori_pr_id = $request->kategori_pr_id;
-            $penduduk->nik = $request->nik;
-            $penduduk->name = $request->name;
-            $penduduk->gender = $request->gender;
-            $penduduk->ttl = $request->ttl;
-            $penduduk->phone = $request->phone;        
-            // $penduduk->lampiran = $imageName;
-            $penduduk->save();
         }
-        // $save = $p_Rentan->update($request->all()); 
-        // $save->where('id', $save->id)->update(['lampiran'=>$save->lampiran]);
+
+        if ($request->hasfile('file')) {
+
+            File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
+
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+        }
+
+        $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
+        $penduduk->kategori_pr_id = $request->kategori_pr_id ?? $penduduk->kategori_pr_id;
+        $penduduk->nik = $request->nik ?? $penduduk->nik;
+        $penduduk->name = $request->name ?? $penduduk->name;
+        $penduduk->gender = $request->gender ?? $penduduk->gender;
+        $penduduk->ttl = $request->ttl ?? $penduduk->ttl;
+        $penduduk->address = $request->address ?? $penduduk->address;
+        $penduduk->lampiran = $imageName ?? $penduduk->lampiran;
+        $penduduk->save();
+
+        $notadinas->yayasan_id = $request->yayasan_id ?? $penduduk->kategori_pr_id ?? NULL;
+        $notadinas->p_rentan_id = $penduduk->id ?? $notadinas->p_rentan_id;
+        $notadinas->file = $Name ?? $notadinas->file;
+        $notadinas->save();
+
         if ($penduduk) {
-            $response = [
-                'status' => true,
-                'message' => 'success updated data',
-                'data' => $penduduk
-            ];
-            $http_code = 200;
 
             Alert::success('Success', 'Data berhasil diupdate!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to updated data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal diupdate!');
             return back();
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $id = base64_decode($id);
+        
         $data = P_Rentan::find($id);
+        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
+        $pendataan = Pendataan::where('p_rentan_id', $id)->first();
+        $pendataan_h = PendataanHistory::where('pendataan_id', $pendataan->id)->first();
+
+        $event = Event::where('p_rentan_id', $id)->first();
+
+        if ($event) {
+            $event_image = EventImages::where('events_id', $event->id)->get();
+            if ($event_image) {
+                foreach ($event_image as $key => $value) {
+                    $value->delete();
+                }
+            }
+            $event->delete();
+        }
+
+        if ($notadinas) {
+            File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
+            $notadinas->delete();
+        }
+
+        if ($data->lampiran != NULL || $data->lampiran != null) {
+            File::delete(public_path().'/files/lampiran/'. $data->lampiran);
+        }
+
+
         if ($data) {
-            $response = [
-                'status' => true,
-                'message' => 'success deleted data',
-                'data' => $data
-            ];
-            $http_code = 200;
 
             $data->delete();
+            $pendataan->delete();
+            $pendataan_h->delete();
 
             Alert::success('Success', 'Data berhasil dihapus!');
             return back();
+            
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to delete data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal dihapus!');
             return back();
@@ -292,9 +288,6 @@ class PendudukController extends Controller
     public function list_napi()
     {
         
-        // $napi = P_Rentan::where('kategori_pr_id', 4)
-        //         ->orderBy('id', 'DESC')
-        //         ->get();
         $napi = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
                 ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
@@ -310,9 +303,7 @@ class PendudukController extends Controller
 
     public function list_transgender()
     {
-        // $transgender = P_Rentan::where('kategori_pr_id', 5)
-        //         ->orderBy('id', 'DESC')
-        //         ->get();
+
         $transgender = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
                 ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
@@ -328,11 +319,7 @@ class PendudukController extends Controller
 
      public function list_odgj()
     {
-        // $odgj = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
-        //         ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
-        //         ->where('p_rentan.kategori_pr_id', 1)
-        //         ->orderBy('id', 'DESC')
-        //         ->get();
+        
         $odgj = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
                 ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
@@ -348,11 +335,6 @@ class PendudukController extends Controller
 
     public function list_panti_asuhan()
     {
-        // $panti_asuhan = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
-        //         ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
-        //         ->where('p_rentan.kategori_pr_id', 2)
-        //         ->orderBy('id', 'DESC')
-        //         ->get();
 
         $panti_asuhan = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
@@ -370,8 +352,7 @@ class PendudukController extends Controller
 
     public function all_pr()
     {
-        // $data = [["a","b","c"],["d","e","f"]];
-        // return $data[1][2];
+
         $all_pr = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
                 ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')

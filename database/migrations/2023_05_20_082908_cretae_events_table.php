@@ -15,7 +15,7 @@ class CretaeEventsTable extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->nullable();
+            $table->integer('p_rentan_id')->nullable();
             $table->integer('yayasan_id')->nullable();
             $table->string('event_name');
             $table->string('event_location');

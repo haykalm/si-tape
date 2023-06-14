@@ -20,9 +20,6 @@ class CreatePRentanTable extends Migration
             $table->biginteger('nik')->unsigned();
             $table->string('name');
             $table->string('ttl')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('created_by')->nullable();
-            $table->string('modified_by')->nullable();
             $table->timestamps();
         });
     }
