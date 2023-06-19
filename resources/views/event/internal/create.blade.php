@@ -72,7 +72,7 @@
 		                                 <div class="form-group">
 		                                        <div class="col-md-12" >
 		                                            <div class="col-md-12 field_wrapper" >
-		                                                {!! Form::label('Gambar Kegiatan: (format:jpg,jpeg,png)', '') !!}
+		                                                {!! Form::label('Foto Kegiatan: (format:jpg,jpeg,png)', '') !!}
 		                                                <div class="input-group ">
 		                                                    <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
 		                                                    <input type="file" class="form-control has-feedback" id="name_file[]" name="name_file[]">

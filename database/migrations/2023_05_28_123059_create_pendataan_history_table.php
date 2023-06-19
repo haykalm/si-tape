@@ -15,7 +15,7 @@ class CreatePendataanHistoryTable extends Migration
     {
         Schema::create('pendataan_history', function (Blueprint $table) {
             $table->id();
-            $table->biginteger('pendataan_id');
+            $table->integer('pendataan_id');
             $table->datetime('pendataan_date');
             $table->timestamps();
         });
