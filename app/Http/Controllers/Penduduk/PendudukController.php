@@ -9,6 +9,11 @@ use App\Models\{
     KategoriPR,
     P_Rentan,
     Yayasan,
+    Pendataan,
+    PendataanHistory,
+    NotaDinas,
+    Event,
+    EventImages,
 };
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -18,232 +23,262 @@ use App\Exports\PendudukExport;
 use App\Imports\PendudukImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-use Session;
-use Throwable;
-
+use File;
+// use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 
 class PendudukController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+   public function __construct()
+    {
+        $this->middleware('auth');
+
+        $this->monthyear = Carbon::now()->format('mY');
+        $this->month = Carbon::now()->format('m');
+        $this->year = Carbon::now()->format('Y');
+        $this->Ymd_His = Carbon::now()->format('Y-m-d H:i:s');
+
+        //**order_number formating**//
+        $pendataan = Pendataan::select('kode_pendataan')
+            ->whereMonth('created_at', $this->month)
+            ->max("kode_pendataan");
+
+        $kode_pendataan = [];
+        if ($pendataan == null) {
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
+            
+        } else {
+            $kode_pendataan = (int) substr($pendataan, 11, 16);
+            $kode_pendataan++;
+            $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
+        }
+    }
+
     public function index()
     {
-        $disabilitas = P_Rentan::where('kategori_pr_id', 3)
-                    ->orderBy('id', 'DESC')
-                    ->get();
+        $disabilitas = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 3)
+                ->get();
+        // return $disabilitas;
         $kategori_pr = KategoriPR::all();
         $yayasan = yayasan::all();
 
         return view('pr.disabilitas.index',['disabilitas'=>$disabilitas,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        // return $request;
         date_default_timezone_set('Asia/Jakarta');
+        // $validator = $request->validated();
 
-        try{
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'nik' => 'required|unique:p_Rentan|max:16',
-            ]);
-            if ($validator->fails()) {
-                $out = [
-                    "message" => $validator->messages()->all(),
-                ];
-                foreach ($out as $key => $value) {
-                    Alert::error('Failed!', $value);
-                    return back();
-                }
-                Alert::error('Failed!', $out);
+        $validator = Validator::make($request->all(), [
+            'name' => ['required','min:3','max:100'],
+            'nik' => 'required|unique:p_Rentan|size:16',
+            'ttl' => 'required',
+            'address' => 'required',
+            'gender' => 'required',
+            'kategori_pr_id' => 'required',
+            'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
+            'file' => 'required|mimes:pdf,docx|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            $out = [
+                "message" => $validator->messages()->all(),
+            ];
+            foreach ($out as $key => $value) {
+                Alert::error('Failed!', $value);
                 return back();
             }
-            if ($request->hasfile('lampiran')) {
-                $validator = Validator::make($request->all(), [
-                    'lampiran' => 'required|mimes:png,jpg,jpeg,csv,xlx,xls,pdf|max:1000',
-                ]);
-                if ($validator->fails()) {
-                    $out = [
-                        "message" => $validator->messages()->all(),
-                    ];
-                    Alert::error('Failed!', $out);
-                    return back();
-                }
-            }
+        }
 
-            $save = New P_Rentan;        
-            $save->yayasan_id   = $request->yayasan_id;
-            $save->kategori_pr_id   = $request->kategori_pr_id;
-            $save->nik   = $request->nik;
-            $save->name   = $request->name;
-            $save->gender   = $request->gender;
-            $save->ttl   = $request->ttl;
-            $save->phone   = $request->phone;
-            if ($request->hasfile('lampiran')) {
-                $save->lampiran   = $request->file('lampiran')->store('files/lampiran');
-            }
-            $save->save();
+        if ($request->hasfile('lampiran')) {
 
-            $save->where('id', $save->id)->update(['lampiran'=>$save->lampiran]);
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        }
 
-        // $save = P_Rentan::create([
-        //     'name' => $request['name'],
-        // ]);
-        // $save = P_Rentan::create($request->all());
+        // insert data
+        $save_pr = New P_Rentan;
+        $save_pr->yayasan_id   = $request->yayasan_id ?? NULL;
+        $save_pr->kategori_pr_id   = $request->kategori_pr_id;
+        $save_pr->nik   = $request->nik;
+        $save_pr->name   = $request->name;
+        $save_pr->gender   = $request->gender ?? NULL;
+        $save_pr->ttl   = $request->ttl ?? NULL;
+        $save_pr->address   = $request->address ?? NULL;
+        $save_pr->lampiran   = $imageName ?? NULL;
+        $save_pr->save();
 
-            if ($save) {
-                $response = [
-                    'status' => true,
-                    'message' => 'success saved data',
-                    'data' => $save
-                ];
-                $http_code = 200;
+        $pendataan = new Pendataan;
+        $pendataan->p_rentan_id = $save_pr->id;
+        $pendataan->kode_pendataan = $this->kode_pendataan;
+        $pendataan->save();
 
-                Alert::success('Success', 'Data berhasil ditambahkan!');
-                return back();
-            } else {
-                $response = [
-                    'status' => false,
-                    'message' => 'Failed to saved data'
-                ];
-                $http_code = 422;
+        $pendataan_h = new PendataanHistory;
+        $pendataan_h->pendataan_id = $pendataan->id;
+        $pendataan_h->pendataan_date = $this->Ymd_His;
+        $pendataan_h->save();
 
-                Alert::error('Failed', 'Data gagal ditambahkan!');
-                return back();
-            }
-        }catch (Throwable $e) {
-            Alert::error('Failed', $e, 'Data gagal ditambahkan!');
+        if ($request->hasfile('file')) {
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+
+            $notadinas = new NotaDinas;
+            $notadinas->yayasan_id = $request->yayasan_id ?? NULL;
+            $notadinas->p_rentan_id = $save_pr->id;
+            $notadinas->file = $Name;
+            $notadinas->save();
+        }
+
+        if ($save_pr) {
+
+            Alert::success('Success', 'Data berhasil ditambahkan!');
+            return back();
+
+        } else {
+
+            Alert::error('Failed', 'Data gagal ditambahkan!');
             return back();
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $data = P_Rentan::find($id);
         $kategori_pr = KategoriPR::all();
+        $old_kategori_pr = KategoriPR::where('id',$data->kategori_pr_id)->first();
         $yayasan = Yayasan::all();
-        return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'yayasan' => $yayasan]);
+        $old_yayasan = Yayasan::where('id',$data->yayasan_id)->first();
+
+        return view('pr.disabilitas.edit', ['data' => $data,'kategori_pr' => $kategori_pr,'old_kategori_pr' => $old_kategori_pr,'yayasan' => $yayasan,'old_yayasan' => $old_yayasan]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        $p_Rentan = P_Rentan::findOrFail($id);
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'nik' => 'required|max:16',
+            'name' => ['required','min:3','max:100'],
+            'nik' => 'required|size:16',
+            'ttl' => 'required',
+            'address' => 'required',
+            'gender' => 'required',
+            'kategori_pr_id' => 'required',
+            'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
+            'file' => 'mimes:pdf,docx|max:2048',
         ]);
         
         if ($validator->fails()) {
             $out = [
             "message" => $validator->messages()->all(),
             ];
-            // return response()->json($out, 422);
+
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
                 return back();
             }
-
-            Alert::error('Failed!', $out);
-            return back();
-
         }
 
-        $save = $p_Rentan->update($request->all()); 
-        if ($save) {
-            $response = [
-                'status' => true,
-                'message' => 'success updated data',
-                'data' => $save
-            ];
-            $http_code = 200;
+        $penduduk = P_Rentan::where('id', $id)->first();
+        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
+
+        if ($request->hasfile('lampiran')) {
+
+            File::delete(public_path().'/files/lampiran/'. $penduduk->lampiran);
+
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $request->lampiran->move(public_path('files/lampiran'), $imageName);
+        }
+
+        if ($request->hasfile('file')) {
+
+            File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
+
+            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+        }
+
+        $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
+        $penduduk->kategori_pr_id = $request->kategori_pr_id ?? $penduduk->kategori_pr_id;
+        $penduduk->nik = $request->nik ?? $penduduk->nik;
+        $penduduk->name = $request->name ?? $penduduk->name;
+        $penduduk->gender = $request->gender ?? $penduduk->gender;
+        $penduduk->ttl = $request->ttl ?? $penduduk->ttl;
+        $penduduk->address = $request->address ?? $penduduk->address;
+        $penduduk->lampiran = $imageName ?? $penduduk->lampiran;
+        $penduduk->save();
+
+        $notadinas->yayasan_id = $request->yayasan_id ?? $penduduk->kategori_pr_id ?? NULL;
+        $notadinas->p_rentan_id = $penduduk->id ?? $notadinas->p_rentan_id;
+        $notadinas->file = $Name ?? $notadinas->file;
+        $notadinas->save();
+
+        if ($penduduk) {
 
             Alert::success('Success', 'Data berhasil diupdate!');
             return back();
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to updated data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal diupdate!');
             return back();
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $id = base64_decode($id);
+        
         $data = P_Rentan::find($id);
+        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
+        $pendataan = Pendataan::where('p_rentan_id', $id)->first();
+        $pendataan_h = PendataanHistory::where('pendataan_id', $pendataan->id)->first();
+
+        $event = Event::where('p_rentan_id', $id)->first();
+
+        if ($event) {
+            $event_image = EventImages::where('events_id', $event->id)->get();
+            if ($event_image) {
+                foreach ($event_image as $key => $value) {
+                    $value->delete();
+                }
+            }
+            $event->delete();
+        }
+
+        if ($notadinas) {
+            File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
+            $notadinas->delete();
+        }
+
+        if ($data->lampiran != NULL || $data->lampiran != null) {
+            File::delete(public_path().'/files/lampiran/'. $data->lampiran);
+        }
+
+
         if ($data) {
-            $response = [
-                'status' => true,
-                'message' => 'success deleted data',
-                'data' => $data
-            ];
-            $http_code = 200;
 
             $data->delete();
+            $pendataan->delete();
+            $pendataan_h->delete();
 
             Alert::success('Success', 'Data berhasil dihapus!');
             return back();
+            
         } else {
-            $response = [
-                'status' => false,
-                'message' => 'Failed to delete data'
-            ];
-            $http_code = 422;
 
             Alert::error('Failed', 'Data gagal dihapus!');
             return back();
@@ -253,8 +288,12 @@ class PendudukController extends Controller
     public function list_napi()
     {
         
-        $napi = P_Rentan::where('kategori_pr_id', 4)
-                ->orderBy('id', 'DESC')
+        $napi = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 4)
                 ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
@@ -264,10 +303,14 @@ class PendudukController extends Controller
 
     public function list_transgender()
     {
-        
-        $transgender = P_Rentan::where('kategori_pr_id', 5)
-                ->orderBy('id', 'DESC')
-                ->get();
+
+        $transgender = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 5)
+                ->get(); 
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
@@ -276,12 +319,14 @@ class PendudukController extends Controller
 
      public function list_odgj()
     {
-        $odgj = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
-                ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
-                ->where('p_rentan.kategori_pr_id', 1)
-                ->orderBy('id', 'DESC')
-                ->get();;
-                // return $odgj;  
+        
+        $odgj = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 1)
+                ->get(); 
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
@@ -290,11 +335,15 @@ class PendudukController extends Controller
 
     public function list_panti_asuhan()
     {
-        $panti_asuhan = P_Rentan::select('p_rentan.*','yayasan.name as yayasan_name')
-                ->join('yayasan','yayasan.id','=','p_rentan.yayasan_id')
-                ->where('p_rentan.kategori_pr_id', 2)
-                ->orderBy('id', 'DESC')
-                ->get();;
+
+        $panti_asuhan = DB::table('p_rentan as p')
+                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
+                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
+                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
+                ->orderBy('p.id', 'DESC')
+                ->where('p.kategori_pr_id', 2)
+                ->get();
+
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
@@ -303,88 +352,17 @@ class PendudukController extends Controller
 
     public function all_pr()
     {
-        // $data = P_Rentan::where('name', 'HaYkAL')->first();
-        // $data = $data->id;
-        // $data = [["a","b","c"],["d","e","f"]];
-        // return $data[1][2];
+
         $all_pr = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
                 ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
                 ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
                 ->orderBy('p.id', 'DESC')
                 ->get();
-        // return $all_pr;  
-        // $all_pr_join = P_Rentan::select('*','yayasan.*','yayasan.name as name_ysn','yayasan.id as id_ysn')
-        //         ->rightjoin('yayasan','yayasan.id','=','p_rentan.yayasan_id')
-        //         ->get();
-        // $data = array_merge($all_pr_join->toArray(),$data_pr->toArray()); 
 
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
         return view('pr.all_pr.index',['all_pr'=>$all_pr,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
-
-    // public function download_lampiran($id){
-
-    //   $path = P_Rentan::where('id', $id)->value('lampiran');
-
-    //   if ($path) {
-    //         $response = [
-    //             'status' => true,
-    //             'message' => 'success downloaded file',
-    //             'data' => $path
-    //         ];
-    //         $http_code = 200;
-    //         return Storage::download($path);
-
-    //         Alert::success('Success', 'lampiran berhasil di download!');
-    //         return back();
-    //     } else {
-    //         $response = [
-    //             'status' => false,
-    //             'message' => 'Failed to download file'
-    //         ];
-    //         $http_code = 422;
-
-    //         Alert::error('Failed', 'lampiran belum di upload!');
-    //         return back();
-    //     }
-
-      
-    // }
-    // public function export_excel()
-    // {
-
-    //     return Excel::download(new PendudukExport, 'Penduduk_rentan.xlsx');
-    // }
-
-    // public function import_penduduk(Request $request) 
-    // {
-        
-    //     $validator = Validator::make($request->all(), [
-    //         'import_excel' => 'required|mimes:csv,xls,xlsx|max:2000',
-    //     ]);
-    //     if ($validator->fails()) {
-    //         $out = [
-    //         "message" => $validator->messages()->all(),
-    //         ];
-    //         Alert::error('Failed!', $out);
-    //         return back();
-    //     }
-    //     // $import = Excel::import(new PendudukImport,$file);
-    //     // dd('Row count: ' . $import->getRowCount());
-    //     // try {
-    //         $file = $request->file('import_excel')->store('files/import'); 
-    //         $import = new PendudukImport;
-    //         $import->import($file);
-    //         // Excel::import($import, $file);
-    //         // return $import->data;
-    //         // return $import->failure;
-
-    //         if ($import->failures()->isNotEmpty()) {
-    //             return back()->withFailures($import->failures());
-    //         }
-    //         return back()->withStatus('Data Berhasil Di Import.');
-    // }
 }

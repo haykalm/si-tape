@@ -15,9 +15,6 @@ class Yayasan extends Model
         'kategori_pr_id',
         'name',
         'phone',
-        'foto',
         'address',
-        'created_by',
-        'modified_by',
     ];
 }

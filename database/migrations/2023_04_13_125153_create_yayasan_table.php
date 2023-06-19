@@ -18,10 +18,7 @@ class CreateYayasanTable extends Migration
             $table->integer('kategori_pr_id')->nullable();
             $table->string('name')->nullable();
             $table->string('phone')->nullable();
-            $table->string('foto')->nullable();
             $table->string('address')->nullable();
-            $table->string('created_by')->nullable();
-            $table->string('modified_by')->nullable();
             $table->timestamps();
         });
     }

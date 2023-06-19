@@ -5,15 +5,16 @@
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu" data-widget="tree">
 
-        <li>
+        <li class="{{request()->is('home') ? 'active' : ''}}">
           <a href="{{url('/home')}}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
         </li>
-
-         <li class="{{request()->is('user') ? 'active' : ''}}">
-          <a href="{{url('/user')}}">
-            <i class="fa fa-user"></i> <span>Admin</span>
-          </a>
-        </li>
+        @if(Auth::user()->role_id == 1)
+          <li class="{{request()->is('user') ? 'active' : ''}}">
+            <a href="{{url('/user')}}">
+              <i class="fa fa-user"></i> <span>Users</span>
+            </a>
+          </li>
+        @endif()
 
         <li class="treeview {{request()->is('penduduk','list_napi','list_transgender','list_odgj','list_panti_asuhan','all_pr') ? 'active' : ''}}">
           <a href="#">
@@ -53,7 +54,7 @@
           </ul>
         </li>
         
-        <li class="treeview {{request()->is('category_pr','category_users') ? 'active' : ''}}">
+        {{--<!-- <li class="treeview {{request()->is('category_pr','category_users') ? 'active' : ''}}">
           <a href="#"><i class="fa fa-th"></i><span> Kategori </span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -67,13 +68,33 @@
               <a href="{{url('/category_pr')}}"><i class="fa fa-circle-o"></i>Penduduk Rentan</a>
             </li>
           </ul>
+        </li> --> --}}
+
+        <li class="treeview {{request()->is('event','event/create','event_internal','create_event_internal','event/*/edit','edit_event_internal/*') ? 'active' : ''}}">
+          <a href="#"><i class="fa fa-picture-o"></i><span>kegiatan</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li class="{{request()->is('event_internal','create_event_internal','edit_event_internal/*') ? 'active' : ''}}">
+              <a href="{{url('/event_internal')}}"><i class="fa fa-circle-o"></i> Per-orangan</a>
+            </li>
+            <li class="{{request()->is('event','event/create','event/*/edit') ? 'active' : ''}}">
+              <a href="{{url('/event')}}"><i class="fa fa-circle-o"></i> Per-yayasan</a>
+            </li>
+          </ul>
         </li>
 
         <li class="treeview">
-          <a href="#">
+          <a href="#" onclick="$('#logout-form').submit()">
             <i class="fa fa-share"></i> <span>Sign Out</span>
           </a>
         </li>
+
+        <form action="{{ url('/logout') }}" method="POST" id="logout-form" style="display: none;">
+          @csrf
+        </form>
         
       </ul>
     </section>
