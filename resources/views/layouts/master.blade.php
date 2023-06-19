@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>@yield('title')</title>
-  <link rel="icon" href="{{ asset('AdminLTE-2') }}/dist/img/avatar04.png">
+  <link rel="icon" href="{{ url('/files/carousel/logo-capil.jpg') }}">
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -44,7 +44,7 @@
 <div class="wrapper">
   @include('layouts.header')
   @include('layouts.sidebar')
-  <div class="content">
+  <div class="content" style="background-image: url({{ url('/files/carousel/bg-summarecon.jpg') }});width: 100%">
     @yield('content')
   </div>
   @include('layouts.footer')

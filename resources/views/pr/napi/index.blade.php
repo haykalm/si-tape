@@ -84,7 +84,7 @@
         </section>
     </div>
 
-    <div class="box-body">
+    <div class="box-body table-responsive">
         <table id="example1" class="table table-bordered table-striped">
              <thead>
                 <tr>
@@ -286,16 +286,15 @@
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 <script>
   $(function () {
-    $('#example1').DataTable()
-    $('#example2').DataTable({
-      'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
-      'ordering'    : true,
-      'info'        : true,
-      'autoWidth'   : false
+        $('#example1').DataTable({
+            'paging'      : true,
+            'lengthChange': true,
+            'searching'   : true,
+            'ordering'    : true,
+            'info'        : true,
+            'autoWidth'   : true
+        })
     })
-  })
 </script>
 
 <script>

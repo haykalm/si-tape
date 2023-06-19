@@ -1,10 +1,9 @@
 
   <header class="main-header">
     <!-- Logo -->
+
     <a href="{{url('/home')}}" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>S</b>T</span>
-      <!-- logo for regular navbar-static-tope and mobile devices -->
+      <span class="logo-mini"><img src="{{ url('/files/carousel/logo-capil.jpg') }}" class="img-circle" alt="logo-disdukcapil"></span>
       <span class="logo-lg"><b>SI-</b>TANPAN</span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->

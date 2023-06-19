@@ -9,10 +9,10 @@
 <!-- DataTales Example -->
 
 <div class="content-wrapper" style="border-radius: 7px">
-    <div class="card-header">
+    <div class="box-header responsive">
         <section class="content-header">
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-lg-12">
                     <div class="box box-default">
                         {{--@if ($failures->any())
                                 <div class="alert alert-danger" role="alert">
@@ -42,7 +42,7 @@
                             @endif
 
                             @if (session()->has('failures'))
-                                <table class="table table-danger" style="background-color: red;">
+                                <table class="table table-danger table-responsive" style="background-color: red;">
                                     <tr>
                                         <th width="30%">Row</th>
                                         <!-- <th>Attribute</th> -->
@@ -98,7 +98,7 @@
         </section>
     </div>
 
-    <div class="box-body">
+    <div class="box-body table-responsive">
         <table id="example1" class="table table-bordered table-striped" width="100%">
             <thead>
                 <tr>
@@ -117,7 +117,7 @@
                     @if(!empty($all_pr))
 
                         @foreach($all_pr as $data => $value)
-                        <tr style="text-align:center;">
+                        <tr style="text-align:center; height: 20px;">
                             <td style="vertical-align: middle;font-size: 12px;">{{ $data +1 }}</td>
                             <td style="vertical-align: middle;font-size: 12px;">{{ $value->nik }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;font-size: 12px;">{{ $value->name }}</td>
@@ -127,7 +127,7 @@
                             <td style="vertical-align: middle;font-size: 12px;">{{ $value->yayasan_name }}</td>
                             <td style="vertical-align: middle;font-size: 12px;">{{ $value->kategori_name }}</td>
                             
-                            <td style="display: flex;justify-content:center;vertical-align: middle;text-decoration: none;">
+                            <td style="display: flex;justify-content:center;vertical-align: middle;align-items: center;">
                                 <a href="{{url('/download_lampiran', base64_encode($value->id),)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 2px">
                                     <li type="button" class="fa fa-cloud-download" ></li>
                                 </a>
@@ -310,17 +310,16 @@
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 <script>
-  $(function () {
-    $('#example1').DataTable()
-    $('#example2').DataTable({
-      'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
-      'ordering'    : true,
-      'info'        : true,
-      'autoWidth'   : false
+    $(function () {
+        $('#example1').DataTable({
+            'paging'      : true,
+            'lengthChange': true,
+            'searching'   : true,
+            'ordering'    : true,
+            'info'        : true,
+            'autoWidth'   : true
+        })
     })
-  })
 </script>
 
 <script>

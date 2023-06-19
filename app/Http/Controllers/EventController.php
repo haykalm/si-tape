@@ -89,11 +89,11 @@ class EventController extends Controller
         $validator = Validator::make($request->all(), [
             'event_name' => 'required|string',
             'event_location' => 'required',
-            'date' => 'required',
+            'date' => 'required|date',
             'name' => 'required|string',
             'address' => 'required',
             'nik' => 'required|unique:p_Rentan|size:16',
-            // 'name_file' => 'mimes:jpeg,png,jpg|max:2048',
+            'name_file.*' => ['mimes:jpeg,png,jpg,max:2048'],
             'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
             'file' => 'required|mimes:pdf,docx|max:2048',
         ]);
@@ -224,7 +224,7 @@ class EventController extends Controller
             'event_name' => 'required|string',
             'event_location' => 'required',
             'date' => 'required',
-            // 'name_file' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'name_file.*' => ['mimes:jpeg,png,jpg,max:2048'],
         ]);
         if ($validator->fails()) {
 
@@ -328,7 +328,7 @@ class EventController extends Controller
             'name' => 'required|string',
             'address' => 'required',
             'nik' => 'required|unique:p_Rentan|size:16',
-            // 'name_file' => 'image',
+            'name_file.*' => ['mimes:jpeg,png,jpg,max:2048'],
             'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
             'file' => 'required|mimes:pdf,docx|max:2048',
         ]);
@@ -425,7 +425,7 @@ class EventController extends Controller
             'event_name' => 'required|string',
             'event_location' => 'required',
             'date' => 'required',
-            // 'name_file' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'name_file.*' => ['mimes:jpeg,png,jpg,max:2048'],
         ]);
         if ($validator->fails()) {
             $out = [
