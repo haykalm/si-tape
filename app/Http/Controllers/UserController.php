@@ -16,18 +16,19 @@ use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class UserController extends Controller
 {
 
     public function index()
-
     {
         $data = RoleUser::select('*','role_users.name as name_category','role_users.id as id_category')
-                        ->join('users','users.role_id','=','role_users.id')
-                        ->orderBy('users.id', 'DESC')
-                        ->get();
-                        
+        ->join('users','users.role_id','=','role_users.id')
+        ->orderBy('users.id', 'DESC')
+        ->get();
+
         $role_user = RoleUser::all();
         return view('user.index', ['data' => $data, 'role_user' => $role_user]);
     }
@@ -47,10 +48,10 @@ class UserController extends Controller
             'foto' => 'image|mimes:jpeg,png,jpg|max:2000',
             'role_id' => 'required',
         ]);
-        
+
         if ($validator->fails()) {
             $out = [
-            "message" => $validator->messages()->all(),
+                "message" => $validator->messages()->all(),
             ];
 
             foreach ($out as $key => $value) {
@@ -64,7 +65,7 @@ class UserController extends Controller
 
         if ($request->hasfile('foto')) {
 
-            $imageName = time().'_'.$request->foto->getClientOriginalName();  
+            $imageName = time().'_'.$request->foto->getClientOriginalName();
             $request->foto->move(public_path('files/users'), $imageName);
         }
 
@@ -116,10 +117,10 @@ class UserController extends Controller
             'foto' => 'image|mimes:jpeg,png,jpg|max:2000',
             'role_id' => 'required',
         ]);
-        
+
         if ($validator->fails()) {
             $out = [
-            "message" => $validator->messages()->all(),
+                "message" => $validator->messages()->all(),
             ];
 
             foreach ($out as $key => $value) {
@@ -135,7 +136,7 @@ class UserController extends Controller
         if ($request->hasfile('foto')) {
             File::delete(public_path().'/files/users/'. $user->foto);
 
-            $imageName = time().'_'.$request->foto->getClientOriginalName();  
+            $imageName = time().'_'.$request->foto->getClientOriginalName();
             $request->foto->move(public_path('files/users'), $imageName);
         }
 
@@ -163,25 +164,25 @@ class UserController extends Controller
     {
         $id = base64_decode($id);
         $data = User::find($id);
-        
+
         $namefile = User::where('id', $id)->value('foto');
 
         if ($namefile) {
             File::delete(public_path().'/files/users/'. $namefile);
         }
-        
+
         if ($data) {
 
             $data->delete();
 
             Alert::success('Success', 'Admin berhasil dihapus!');
             return back();
-            
+
         } else {
 
             Alert::error('Failed', 'Admin gagal dihapus!');
             return back();
-            
+
         }
     }
 }

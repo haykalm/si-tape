@@ -23,9 +23,9 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Validators\Failure;
 use Carbon\Carbon;
 
-class PendudukImport implements 
-    ToCollection, 
-    WithValidation, 
+class PendudukImport implements
+    ToCollection,
+    WithValidation,
     WithStartRow,
     SkipsOnError,
     SkipsOnFailure
@@ -61,7 +61,7 @@ class PendudukImport implements
         $kode_pendataan = [];
         if ($pendataan == null) {
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
-        } else {   
+        } else {
             $kode_pendataan = (int) substr($pendataan, 11, 16);
             $kode_pendataan++;
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
@@ -79,7 +79,7 @@ class PendudukImport implements
                 $kategori = KategoriPR::where('name', $k_name)->first();
                 // $this->data = $kategori;
                 if (!empty($yayasan)) {
-                    $save_pr = New P_Rentan;        
+                    $save_pr = New P_Rentan;
                     $save_pr->yayasan_id = $yayasan->id;
                     $save_pr->kategori_pr_id = $kategori->id;
                     $save_pr->nik = intval($value[0]);
@@ -99,12 +99,12 @@ class PendudukImport implements
                     $pendataan_h->pendataan_date = $this->Ymd_His;
                     $pendataan_h->save();
                 } else {
-                    $save_yayasan = New Yayasan;        
-                    $save_yayasan->kategori_pr_id = $kategori->id;        
-                    $save_yayasan->name = $y_name;        
+                    $save_yayasan = New Yayasan;
+                    $save_yayasan->kategori_pr_id = $kategori->id;
+                    $save_yayasan->name = $y_name;
                     $save_yayasan->save();
 
-                    $save_pr = New P_Rentan;        
+                    $save_pr = New P_Rentan;
                     $save_pr->kategori_pr_id = $save_yayasan->kategori_pr_id;
                     $save_pr->nik = intval($value[0]);
                     $save_pr->name = $value[1];
@@ -130,7 +130,7 @@ class PendudukImport implements
                 // $yayasan = Yayasan::where('name', $y_name)->first();
                 $kategori = KategoriPR::where('name', $k_name)->first();
                 if ($value[5] == NULL && $value[6] != NULL) {
-                    $save_pr = New P_Rentan;        
+                    $save_pr = New P_Rentan;
                     $save_pr->yayasan_id = NULL;
                     $save_pr->kategori_pr_id = $kategori->id;
                     $save_pr->nik = intval($value[0]);
@@ -154,7 +154,7 @@ class PendudukImport implements
                 }
             }
         }
-        
+
     }
 
     public function rules(): array

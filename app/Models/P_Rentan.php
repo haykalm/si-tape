@@ -11,7 +11,7 @@ class P_Rentan extends Model
 
     protected $table = 'p_rentan';
 
-    protected $fillable = [ 
+    protected $fillable = [
         'yayasan_id',
         'kategori_pr_id',
         'nik',

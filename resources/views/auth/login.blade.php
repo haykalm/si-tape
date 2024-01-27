@@ -52,7 +52,7 @@
           </div>
 
           <div class="item">
-            <img src="{{ url('/files/carousel/napi.jpg') }}" alt="image napi" style="height: 230px">      
+            <img src="{{ url('/files/carousel/napi.jpg') }}" alt="image napi" style="height: 230px">
             <div class="carousel-caption">
               <h3><b>SI</b>-TANPAN </h3>
               <p class="h4"><b>Menyimpan dan Mengelola data nara pidana (napi) di kota Bekasi</b></p>

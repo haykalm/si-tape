@@ -182,6 +182,7 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         // Dompdf\DompdfServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
 
     ],
 
@@ -245,6 +246,7 @@ return [
         // 'PDF' => Dompdf\DompdfFacade::class,
         'Form' => Collective\Html\FormFacde::class,
         'Html' => Collective\Html\HtmlFacde::class,
+        'Datatables' => Yajra\Datatables\Facades\Datatables::class,
 
     ],
 

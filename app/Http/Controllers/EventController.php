@@ -10,7 +10,7 @@ use App\Models\{
     Pendataan,
     PendataanHistory,
     P_Rentan,
-    NotaDinas,
+    NotaDinas
 };
 use RealRashid\SweetAlert\Facades\Alert;
 // use DB;
@@ -92,7 +92,7 @@ class EventController extends Controller
             'date' => 'required|date',
             'name' => 'required|string',
             'address' => 'required',
-            'nik' => 'required|unique:p_Rentan|size:16',
+            'nik' => 'required|unique:p_rentan|size:16',
             'name_file.*' => ['mimes:jpeg,png,jpg,max:2048'],
             'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
             'file' => 'required|mimes:pdf,docx|max:2048',
@@ -327,7 +327,7 @@ class EventController extends Controller
             'date' => 'required',
             'name' => 'required|string',
             'address' => 'required',
-            'nik' => 'required|unique:p_Rentan|size:16',
+            'nik' => 'required|unique:p_rentan|size:16',
             'name_file.*' => ['mimes:jpeg,png,jpg,max:2048'],
             'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
             'file' => 'required|mimes:pdf,docx|max:2048',
