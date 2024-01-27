@@ -23,83 +23,7 @@ class UserController extends Controller
 {
 
     public function index()
-
     {
-        $jsonData = [
-            [
-                "soal"=>"siapa nama ibu kandung anda?",
-                "pil_a"=>"fulan",
-                "kunci"=>"pil_a",
-                "jawab"=>"pil_a"
-            ],
-            [
-                "soal"=>"nama hewan peliharaan anda?",
-                "pil_b"=>"fulan",
-                "kunci"=>"pil_a",
-            ],
-            [
-                "soal"=>"warna kesukaan anda?",
-                "pil_c"=>"fulan",
-                "kunci"=>"pil_c",
-            ]
-        ];
-
-        $data=[];
-        foreach ($jsonData as $key => $value) {
-            $data[]=[
-                "soal"=>$value['soal'],
-                "kunci"=>$value['kunci'],
-            ];
-        }
-        return $data;
-
-        foreach ($jsonData as &$item) {
-            $item['jawab'] = $item[$item['kunci']];
-        }
-
-        $newJsonData = json_encode($data, JSON_PRETTY_PRINT);
-        $benar = [];
-        foreach ($data as $key => $value) {
-            // $data=[
-            //     "key"=>$key,
-            //     "value"=>$value,
-
-            // ];
-            // $score=0;
-            // if (condition) {
-            //     # code...
-            // }
-            // $jawaban = 'pil_'.Str::lower($value['jawab']);
-            // if ($jawaban == $data) {
-            //     $benar[] = [
-            //         'jawbanBenar' => $data
-            //     ];
-            // }
-        }
-        return $newJsonData;
-
-        [
-            {
-                "soal":"siapa nama ibu kandung anda?",
-                "pil_a":"fulan",
-                "pil_b":"siti",
-                "pil_c":"juju",
-                "pil_d":"sri",
-                "jawab":"A"
-            },
-            {"soal":"nama hewan peliharaan anda?",
-                "pil_a":"kucing",
-                "pil_b":"anjing",
-                "pil_c":"kelinci",
-                "pil_d":"marmut",
-                "jawab":"C"
-            }
-        ]
-
-
-
-
-
         $data = RoleUser::select('*','role_users.name as name_category','role_users.id as id_category')
         ->join('users','users.role_id','=','role_users.id')
         ->orderBy('users.id', 'DESC')
@@ -124,7 +48,7 @@ class UserController extends Controller
             'foto' => 'image|mimes:jpeg,png,jpg|max:2000',
             'role_id' => 'required',
         ]);
-        
+
         if ($validator->fails()) {
             $out = [
                 "message" => $validator->messages()->all(),
@@ -141,7 +65,7 @@ class UserController extends Controller
 
         if ($request->hasfile('foto')) {
 
-            $imageName = time().'_'.$request->foto->getClientOriginalName();  
+            $imageName = time().'_'.$request->foto->getClientOriginalName();
             $request->foto->move(public_path('files/users'), $imageName);
         }
 
@@ -193,7 +117,7 @@ class UserController extends Controller
             'foto' => 'image|mimes:jpeg,png,jpg|max:2000',
             'role_id' => 'required',
         ]);
-        
+
         if ($validator->fails()) {
             $out = [
                 "message" => $validator->messages()->all(),
@@ -212,7 +136,7 @@ class UserController extends Controller
         if ($request->hasfile('foto')) {
             File::delete(public_path().'/files/users/'. $user->foto);
 
-            $imageName = time().'_'.$request->foto->getClientOriginalName();  
+            $imageName = time().'_'.$request->foto->getClientOriginalName();
             $request->foto->move(public_path('files/users'), $imageName);
         }
 
@@ -240,25 +164,25 @@ class UserController extends Controller
     {
         $id = base64_decode($id);
         $data = User::find($id);
-        
+
         $namefile = User::where('id', $id)->value('foto');
 
         if ($namefile) {
             File::delete(public_path().'/files/users/'. $namefile);
         }
-        
+
         if ($data) {
 
             $data->delete();
 
             Alert::success('Success', 'Admin berhasil dihapus!');
             return back();
-            
+
         } else {
 
             Alert::error('Failed', 'Admin gagal dihapus!');
             return back();
-            
+
         }
     }
 }
