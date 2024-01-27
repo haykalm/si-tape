@@ -13,7 +13,7 @@ use App\Models\{
     PendataanHistory,
     NotaDinas,
     Event,
-    EventImages,
+    EventImages
 };
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -24,7 +24,6 @@ use App\Imports\PendudukImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 use File;
-// use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 
@@ -47,7 +46,7 @@ class PendudukController extends Controller
         $kode_pendataan = [];
         if ($pendataan == null) {
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
-            
+
         } else {
             $kode_pendataan = (int) substr($pendataan, 11, 16);
             $kode_pendataan++;
@@ -57,14 +56,16 @@ class PendudukController extends Controller
 
     public function index()
     {
-        $disabilitas = DB::table('p_rentan as p')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
-                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
-                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
-                ->orderBy('p.id', 'DESC')
-                ->where('p.kategori_pr_id', 3)
+
+        $disabilitas = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
+                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
+                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+                ->orderBy('p_rentan.id', 'DESC')
+                ->where('p_rentan.kategori_pr_id', 3)
+                ->whereYear('p_rentan.created_at', $this->year)
                 ->get();
-        // return $disabilitas;
+
         $kategori_pr = KategoriPR::all();
         $yayasan = yayasan::all();
 
@@ -79,17 +80,16 @@ class PendudukController extends Controller
     public function store(Request $request)
     {
         date_default_timezone_set('Asia/Jakarta');
-        // $validator = $request->validated();
 
         $validator = Validator::make($request->all(), [
             'name' => ['required','min:3','max:100'],
-            'nik' => 'required|unique:p_Rentan|size:16',
+            'nik' => 'required|unique:p_rentan|size:16',
             'ttl' => 'required',
             'address' => 'required',
             'gender' => 'required',
             'kategori_pr_id' => 'required',
             'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
-            'file' => 'required|mimes:pdf,docx|max:2048',
+            'file' => 'mimes:pdf,docx|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -104,7 +104,7 @@ class PendudukController extends Controller
 
         if ($request->hasfile('lampiran')) {
 
-            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
         }
 
@@ -131,7 +131,7 @@ class PendudukController extends Controller
         $pendataan_h->save();
 
         if ($request->hasfile('file')) {
-            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $Name = time().'_'.$request->file->getClientOriginalName();
             $request->file->move(public_path('files/nota_dinas'), $Name);
 
             $notadinas = new NotaDinas;
@@ -181,7 +181,7 @@ class PendudukController extends Controller
             'lampiran' => 'mimes:jpeg,png,jpg,pdf|max:2048',
             'file' => 'mimes:pdf,docx|max:2048',
         ]);
-        
+
         if ($validator->fails()) {
             $out = [
             "message" => $validator->messages()->all(),
@@ -194,22 +194,12 @@ class PendudukController extends Controller
         }
 
         $penduduk = P_Rentan::where('id', $id)->first();
-        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
-
         if ($request->hasfile('lampiran')) {
 
             File::delete(public_path().'/files/lampiran/'. $penduduk->lampiran);
 
-            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
-        }
-
-        if ($request->hasfile('file')) {
-
-            File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
-
-            $Name = time().'_'.$request->file->getClientOriginalName();  
-            $request->file->move(public_path('files/nota_dinas'), $Name);
         }
 
         $penduduk->yayasan_id = $request->yayasan_id ?? NULL;
@@ -222,10 +212,26 @@ class PendudukController extends Controller
         $penduduk->lampiran = $imageName ?? $penduduk->lampiran;
         $penduduk->save();
 
-        $notadinas->yayasan_id = $request->yayasan_id ?? $penduduk->kategori_pr_id ?? NULL;
-        $notadinas->p_rentan_id = $penduduk->id ?? $notadinas->p_rentan_id;
-        $notadinas->file = $Name ?? $notadinas->file;
-        $notadinas->save();
+        $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
+        if($request->hasfile('file')) {
+            $Name = time().'_'.$request->file->getClientOriginalName();
+            $request->file->move(public_path('files/nota_dinas'), $Name);
+
+            if(!empty($notadinas)){
+                File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
+                $notadinas->yayasan_id = $request->yayasan_id ?? NULL;
+                $notadinas->p_rentan_id = $penduduk->id ?? $notadinas->p_rentan_id;
+                $notadinas->file = $Name ?? $notadinas->file;
+                $notadinas->save();
+            }elseif(empty($notadinas)) {
+                $notadinas = new NotaDinas;
+                $notadinas->yayasan_id = $request->yayasan_id ?? NULL;
+                $notadinas->p_rentan_id = $penduduk->id;
+                $notadinas->file = $Name;
+                $notadinas->save();
+            }
+        }
+
 
         if ($penduduk) {
 
@@ -241,7 +247,7 @@ class PendudukController extends Controller
     public function destroy($id)
     {
         $id = base64_decode($id);
-        
+
         $data = P_Rentan::find($id);
         $notadinas = NotaDinas::where('p_rentan_id', $id)->first();
         $pendataan = Pendataan::where('p_rentan_id', $id)->first();
@@ -253,11 +259,13 @@ class PendudukController extends Controller
             $event_image = EventImages::where('events_id', $event->id)->get();
             if ($event_image) {
                 foreach ($event_image as $key => $value) {
+                    File::delete(public_path().'/files/event/'. $value->name_file);
                     $value->delete();
                 }
             }
             $event->delete();
         }
+
 
         if ($notadinas) {
             File::delete(public_path().'/files/nota_dinas/'. $notadinas->file);
@@ -277,7 +285,7 @@ class PendudukController extends Controller
 
             Alert::success('Success', 'Data berhasil dihapus!');
             return back();
-            
+
         } else {
 
             Alert::error('Failed', 'Data gagal dihapus!');
@@ -287,13 +295,13 @@ class PendudukController extends Controller
 
     public function list_napi()
     {
-        
-        $napi = DB::table('p_rentan as p')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
-                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
-                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
-                ->orderBy('p.id', 'DESC')
-                ->where('p.kategori_pr_id', 4)
+        $napi = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
+                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
+                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+                ->orderBy('p_rentan.id', 'DESC')
+                ->where('p_rentan.kategori_pr_id', 4)
+                ->whereYear('p_rentan.created_at', $this->year)
                 ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
@@ -303,14 +311,14 @@ class PendudukController extends Controller
 
     public function list_transgender()
     {
-
-        $transgender = DB::table('p_rentan as p')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
-                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
-                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
-                ->orderBy('p.id', 'DESC')
-                ->where('p.kategori_pr_id', 5)
-                ->get(); 
+        $transgender = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
+                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
+                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+                ->orderBy('p_rentan.id', 'DESC')
+                ->where('p_rentan.kategori_pr_id', 5)
+                ->whereYear('p_rentan.created_at', $this->year)
+                ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
@@ -319,14 +327,15 @@ class PendudukController extends Controller
 
      public function list_odgj()
     {
-        
-        $odgj = DB::table('p_rentan as p')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
-                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
-                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
-                ->orderBy('p.id', 'DESC')
-                ->where('p.kategori_pr_id', 1)
-                ->get(); 
+
+        $odgj = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
+                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
+                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+                ->orderBy('p_rentan.id', 'DESC')
+                ->where('p_rentan.kategori_pr_id', 1)
+                ->whereYear('p_rentan.created_at', $this->year)
+                ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
@@ -336,12 +345,13 @@ class PendudukController extends Controller
     public function list_panti_asuhan()
     {
 
-        $panti_asuhan = DB::table('p_rentan as p')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
-                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
-                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
-                ->orderBy('p.id', 'DESC')
-                ->where('p.kategori_pr_id', 2)
+        $panti_asuhan = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
+                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
+                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+                ->orderBy('p_rentan.id', 'DESC')
+                ->where('p_rentan.kategori_pr_id', 3)
+                ->whereYear('p_rentan.created_at', $this->year)
                 ->get();
 
         $kategori_pr = KategoriPR::all();
@@ -353,11 +363,12 @@ class PendudukController extends Controller
     public function all_pr()
     {
 
-        $all_pr = DB::table('p_rentan as p')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
-                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
-                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
-                ->orderBy('p.id', 'DESC')
+        $all_pr = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
+                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
+                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+                ->whereYear('p_rentan.created_at', $this->year)
+                ->orderBy('p_rentan.id', 'DESC')
                 ->get();
 
         $kategori_pr = KategoriPR::all();

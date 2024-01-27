@@ -10,7 +10,7 @@ use App\Models\{
     Yayasan,
     Event,
     EventImages,
-    NotaDinas,
+    NotaDinas
 };
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -38,11 +38,15 @@ use Carbon\Carbon;
 
 class ReportController extends Controller
 {
+    public function __construct()
+    {
+        $this->year = Carbon::now()->format('Y');
+    }
     public function download_lampiran($id)
     {
         $id = base64_decode($id);
         $namefile = P_Rentan::where('id', $id)->value('lampiran');
-        $filepath = public_path('files/lampiran/'.$namefile);
+        $filepath = public_path('/files/lampiran/'.$namefile);
 
         if (!empty($namefile)){
             $response = [
@@ -107,8 +111,10 @@ class ReportController extends Controller
             $out = [
                 "message" => $validator->messages()->all(),
             ];
-            Alert::error('Failed!', $out);
-            return back();
+            foreach ($out as $key => $value) {
+                Alert::error('Failed!', $value);
+                return back();
+            }
         }
 
         $file = $request->file('import_excel'); 
@@ -149,12 +155,12 @@ class ReportController extends Controller
 
     public function all_pr_pdf()
     {
-        // Retrieve the data for your report (e.g., from a database)
         $all_pr = DB::table('p_rentan as p')
                 ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
                 ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
                 ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
                 ->orderBy('p.id', 'DESC')
+                ->whereYear('p.created_at', $this->year)
                 ->get();
 
         $name_all = 'semua kategori';
@@ -162,23 +168,6 @@ class ReportController extends Controller
         $namefile = 'all_penduduk_rentan';
         $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'name_all'=>$name_all])->setPaper('f4','portrait');
         return $pdf->stream(''. $namefile .'.pdf');
-        // return $pdf->stream('report_all_pr.pdf', ['all_pr'=>$all_pr]);
-        // // Render the report view as HTML
-        // $dompdf = loadView('report/pr_pdf', compact('all_pr'))->render();
-        
-        // // Load the HTML content into Dompdf
-        // $dompdf->loadHtml($html);   
-        
-        // // (Optional) Set Dompdf options (e.g., page size, font)
-        // // $dompdf->setPaper('f4', 'portrait');
-        
-        // // Render the HTML to PDF
-        // $dompdf->render();
-        
-        // Output the generated PDF to the browser
-        // $dompdf->stream('report_all_pr.pdf');
-        // return $pdf->download('all-penduduk-rentan-pdf');
-        // $pdf = PDF::loadview('report/pr_pdf',['all_pr'=>$all_pr]);
     }
 
     public function disabilitas_pdf()
@@ -189,20 +178,18 @@ class ReportController extends Controller
                 ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
                 ->orderBy('p.id', 'DESC')
                 ->where('p.kategori_pr_id', 3)
+                ->whereYear('p.created_at', $this->year)
                 ->get();
-
-        // $dataTable = DataTables::of($all_pr)->make(true);
-
-        foreach ($all_pr as $key => $value) {
-        }
-        $kategori_name = $value->kategori_name;
-
+         
+        $kategori_name = 'Disabilitas';
+        
         $namefile = 'all_disabilitas';
-
-        $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'kategori_name'=>$kategori_name])
-            ->setPaper('f4', 'portrait');
-
-        return $pdf->stream(''. $namefile .'.pdf');
+    
+            $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'kategori_name'=>$kategori_name])
+                ->setPaper('f4', 'portrait');
+    
+            return $pdf->stream(''. $namefile .'.pdf');
+        
     }
 
     public function napi_pdf()
@@ -213,10 +200,10 @@ class ReportController extends Controller
                 ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
                 ->orderBy('p.id', 'DESC')
                 ->where('p.kategori_pr_id', 4)
+                ->whereYear('p.created_at', $this->year)
                 ->get();
-        foreach ($all_pr as $key => $value) {
-            $kategori_name = $value->kategori_name;
-        }
+                
+        $kategori_name = 'Napi';
 
         $namefile = 'all_napi';
         $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'kategori_name'=>$kategori_name])->setPaper('f4', 'portrait');
@@ -231,10 +218,10 @@ class ReportController extends Controller
                 ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
                 ->orderBy('p.id', 'DESC')
                 ->where('p.kategori_pr_id', 5)
+                ->whereYear('p.created_at', $this->year)
                 ->get();
-        foreach ($all_pr as $key => $value) {
-            $kategori_name = $value->kategori_name;
-        }
+                
+        $kategori_name = 'Transgender';
 
         $namefile = 'all_transgender';
         $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'kategori_name'=>$kategori_name])->setPaper('f4', 'portrait');
@@ -249,10 +236,10 @@ class ReportController extends Controller
                 ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
                 ->orderBy('p.id', 'DESC')
                 ->where('p.kategori_pr_id', 1)
+                ->whereYear('p.created_at', $this->year)
                 ->get();
-        foreach ($all_pr as $key => $value) {
-            $kategori_name = $value->kategori_name;
-        }
+                
+        $kategori_name = 'Odgj';
 
         $namefile = 'all_odgj';
         $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'kategori_name'=>$kategori_name])->setPaper('f4', 'portrait');
@@ -267,10 +254,10 @@ class ReportController extends Controller
                 ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
                 ->orderBy('p.id', 'DESC')
                 ->where('p.kategori_pr_id', 2)
-                ->get();  
-        foreach ($all_pr as $key => $value) {
-            $kategori_name = $value->kategori_name;
-        }
+                ->whereYear('p.created_at', $this->year)
+                ->get(); 
+                
+        $kategori_name = 'Panti Asuhan';
 
         $namefile = 'all_panti_asuhans';
         $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'kategori_name'=>$kategori_name])->setPaper('f4', 'portrait');
@@ -311,8 +298,6 @@ class ReportController extends Controller
         $yayasan = Yayasan::join('kategori_pr', 'kategori_pr.id', '=', 'yayasan.kategori_pr_id')
                     ->select('yayasan.*','kategori_pr.name as name_category')
                     ->get();
-        // return $yayasan;
-
 
         $namefile = 'all_yayasan';
         $pdf = PDF::loadView('report/all_yayasan_pdf',['yayasan'=>$yayasan])->setPaper('f4', 'portrait');

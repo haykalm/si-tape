@@ -227,7 +227,7 @@
 <script>
     $(function () {
         var areaChartData = {
-          labels  : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 
+          labels  : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
                     'Aug', 'Sept', 'Oct', 'nov', 'Dec'],
           datasets: [
             {

@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class UserController extends Controller
 {
@@ -23,11 +25,86 @@ class UserController extends Controller
     public function index()
 
     {
+        $jsonData = [
+            [
+                "soal"=>"siapa nama ibu kandung anda?",
+                "pil_a"=>"fulan",
+                "kunci"=>"pil_a",
+                "jawab"=>"pil_a"
+            ],
+            [
+                "soal"=>"nama hewan peliharaan anda?",
+                "pil_b"=>"fulan",
+                "kunci"=>"pil_a",
+            ],
+            [
+                "soal"=>"warna kesukaan anda?",
+                "pil_c"=>"fulan",
+                "kunci"=>"pil_c",
+            ]
+        ];
+
+        $data=[];
+        foreach ($jsonData as $key => $value) {
+            $data[]=[
+                "soal"=>$value['soal'],
+                "kunci"=>$value['kunci'],
+            ];
+        }
+        return $data;
+
+        foreach ($jsonData as &$item) {
+            $item['jawab'] = $item[$item['kunci']];
+        }
+
+        $newJsonData = json_encode($data, JSON_PRETTY_PRINT);
+        $benar = [];
+        foreach ($data as $key => $value) {
+            // $data=[
+            //     "key"=>$key,
+            //     "value"=>$value,
+
+            // ];
+            // $score=0;
+            // if (condition) {
+            //     # code...
+            // }
+            // $jawaban = 'pil_'.Str::lower($value['jawab']);
+            // if ($jawaban == $data) {
+            //     $benar[] = [
+            //         'jawbanBenar' => $data
+            //     ];
+            // }
+        }
+        return $newJsonData;
+
+        [
+            {
+                "soal":"siapa nama ibu kandung anda?",
+                "pil_a":"fulan",
+                "pil_b":"siti",
+                "pil_c":"juju",
+                "pil_d":"sri",
+                "jawab":"A"
+            },
+            {"soal":"nama hewan peliharaan anda?",
+                "pil_a":"kucing",
+                "pil_b":"anjing",
+                "pil_c":"kelinci",
+                "pil_d":"marmut",
+                "jawab":"C"
+            }
+        ]
+
+
+
+
+
         $data = RoleUser::select('*','role_users.name as name_category','role_users.id as id_category')
-                        ->join('users','users.role_id','=','role_users.id')
-                        ->orderBy('users.id', 'DESC')
-                        ->get();
-                        
+        ->join('users','users.role_id','=','role_users.id')
+        ->orderBy('users.id', 'DESC')
+        ->get();
+
         $role_user = RoleUser::all();
         return view('user.index', ['data' => $data, 'role_user' => $role_user]);
     }
@@ -50,7 +127,7 @@ class UserController extends Controller
         
         if ($validator->fails()) {
             $out = [
-            "message" => $validator->messages()->all(),
+                "message" => $validator->messages()->all(),
             ];
 
             foreach ($out as $key => $value) {
@@ -119,7 +196,7 @@ class UserController extends Controller
         
         if ($validator->fails()) {
             $out = [
-            "message" => $validator->messages()->all(),
+                "message" => $validator->messages()->all(),
             ];
 
             foreach ($out as $key => $value) {

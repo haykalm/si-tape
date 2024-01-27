@@ -86,3 +86,7 @@ Route::middleware(['auth'])->group(function () {
 	Route::get('/edit_event_internal/{id}', [EventController::class, 'edit_event_internal'])->name('edit_event.internal');
 	Route::put('/update_event_internal/{id}', [EventController::class, 'update_event_internal'])->name('update_event.internal');
 });
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
