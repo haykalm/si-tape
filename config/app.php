@@ -246,7 +246,7 @@ return [
         // 'PDF' => Dompdf\DompdfFacade::class,
         'Form' => Collective\Html\FormFacde::class,
         'Html' => Collective\Html\HtmlFacde::class,
-        'Datatables' => Yajra\Datatables\Facades\Datatables::class,
+        // 'Datatables' => Yajra\Datatables\Facades\Datatables::class,
 
     ],
 

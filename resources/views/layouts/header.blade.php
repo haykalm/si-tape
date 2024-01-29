@@ -23,7 +23,7 @@
               @else()
                 <img src="{{ url('/files/users/user-foto-default.jpg') }}" class="user-image" alt="User Image">
               @endif()
-              
+
               <span class="hidden-xs">{{Auth::user()->name}}</span>
             </a>
             <ul class="dropdown-menu">

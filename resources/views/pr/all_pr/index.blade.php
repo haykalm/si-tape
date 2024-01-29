@@ -95,10 +95,46 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-default">
+                        <br>
+                        <div class="row">
+                            <div class="col-md-3 pull-right" style="margin-right: 10px; margin-left:10px">
+                                <div class="box box-default collapsed-box box-solid">
+                                    <div class="box-header with-border" style="padding:5px">
+                                        <p class="box-title" style="font-size: 15px">Filter</p>
+
+                                        <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                                        </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="box-body">
+                                        <form action="{{ route(Route::currentRouteName()) }}">
+                                            <label class="form-label fs-6 fw-semibold">Pilih Bulan dan Tahun:</label>
+                                            <input type="month" name="month_year" style="margin: 7px" value="{{ old('month_year') }}">
+                                            <div class="pull-right" style="margin-top: 10px">
+                                                <button type="submit" style="font-size: 12px">Apply</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="box-body mb-4">
+                            {{ $dataTable->table() }}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
-    <div class="box-body table-responsive">
+    {{-- <div class="box-body table-responsive">
         <table id="example1" class="table table-bordered table-striped" width="100%">
             <thead>
                 <tr>
@@ -126,7 +162,7 @@
                             <td style="vertical-align: middle;font-size: 12px;">{{ $value->gender }}</td>
                             <td style="vertical-align: middle;font-size: 12px;">{{ $value->yayasan_name }}</td>
                             <td style="vertical-align: middle;font-size: 12px;">{{ $value->kategori_name }}</td>
-                            
+
                             <td style="display: flex;justify-content:center;vertical-align: middle;align-items: center;">
                                 <a href="{{url('/download_lampiran', base64_encode($value->id),)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 2px">
                                     <li type="button" class="fa fa-cloud-download" ></li>
@@ -156,15 +192,15 @@
 
                     @endif()
 
-               
+
             </tbody>
         </table>
-    </div>
+    </div> --}}
 </div>
 <!-- /.box-body -->
 
 
-        
+
 <!-- create Modal-->
 <div class="modal fade" id="modal-default">
     <div class="modal-dialog">
@@ -305,11 +341,12 @@
 
 
 @push('scripts')
+{{ $dataTable->scripts() }}
 <!-- DataTables -->
 <link rel="stylesheet" href="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-<script>
+{{-- <script>
     $(function () {
         $('#example1').DataTable({
             'paging'      : true,
@@ -320,9 +357,11 @@
             'autoWidth'   : true
         })
     })
-</script>
+</script> --}}
 
 <script>
+
+
     $(document).ready(function() {
         $('#content').html(data);
     });
@@ -335,4 +374,4 @@
         });
     }
 </script>
-@endpush    
+@endpush

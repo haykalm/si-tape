@@ -44,13 +44,13 @@ Route::middleware(['auth'])->group(function () {
 
 	// route penduduk rentan
 	Route::resource('/penduduk', PendudukController::class);
-	Route::get('/all_pr', [PendudukController::class,'all_pr']);
-	Route::get('/list_napi', [PendudukController::class,'list_napi']); //just url
+	Route::get('/all_pr', [PendudukController::class,'all_pr'])->name('all_pr');;
+	Route::get('/list_napi', [PendudukController::class,'list_napi'])->name('list_napi'); //just url
 	// Route::get('/list_napi', [PendudukController::class,'list_napi'])->name('list_napi'); //url and route
 	// Route::get('/list_napi', [App\Http\Controllers\Penduduk\PendudukController::class, 'list_napi'])->name('list_napi');
-	Route::get('/list_transgender', [PendudukController::class,'list_transgender']);
-	Route::get('/list_odgj', [PendudukController::class,'list_odgj']);
-	Route::get('/list_panti_asuhan', [PendudukController::class,'list_panti_asuhan']);
+	Route::get('/list_transgender', [PendudukController::class,'list_transgender'])->name('list_transgender');
+	Route::get('/list_odgj', [PendudukController::class,'list_odgj'])->name('list_odgj');
+	Route::get('/list_panti_asuhan', [PendudukController::class,'list_panti_asuhan'])->name('list_panti_asuhan');
 
 	// routes yayasan
 	Route::resource('/yayasan', YayasanController::class);

@@ -81,72 +81,48 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-default">
+                        <br>
+                        <div class="row">
+                            <div class="col-md-3 pull-right" style="margin-right: 10px; margin-left:10px">
+                                <div class="box box-default collapsed-box box-solid">
+                                    <div class="box-header with-border" style="padding:5px">
+                                        <p class="box-title" style="font-size: 15px">Filter</p>
+
+                                        <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                                        </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="box-body">
+                                        <form action="{{ route(Route::currentRouteName()) }}">
+                                            <label class="form-label fs-6 fw-semibold">Pilih Bulan dan Tahun:</label>
+                                            <input type="month" name="month_year" style="margin: 7px" value="{{ old('month_year') }}">
+                                            <div class="pull-right" style="margin-top: 10px">
+                                                <button type="submit" style="font-size: 12px">Apply</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-body mb-4">
+                            {{ $dataTable->table() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
-    </div>
-
-    <div class="box-body table-responsive">
-        <table id="example1" class="table table-bordered table-striped">
-             <thead>
-                <tr>
-                    <tr>
-                        <th style="vertical-align: middle;text-align: center;" width="1%">No</th>
-                        <th style="vertical-align: middle;text-align: center;" width="15%">Nik</th>
-                        <th style="vertical-align: middle;text-align: center;" width="15%">Name</th>
-                        <th style="vertical-align: middle;text-align: center;" width="15%">TTL</th>
-                        <th style="vertical-align: middle;text-align: center;" width="15%">Alamat</th>
-                        <th style="vertical-align: middle;text-align: center;" width="15%">jenis kelamin</th>
-                        <th style="vertical-align: middle;text-align: center;" width="1%">Actions</th>
-                    </tr>
-                </tr>
-            </thead>
-            <tbody>
-                    @if(!empty($napi))
-
-                        @foreach($napi as $data => $value)
-                        <tr style="text-align:center;font-size: 12px;">
-                            <td style="vertical-align: middle;">{{ $data +1 }}</td>
-                            <td style="vertical-align: middle;">{{ $value->nik }}</td>
-                            <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->name }}</td>
-                            <td style="vertical-align: middle;">{{ $value->ttl }}</td>
-                            <td style="text-transform: lowercase;vertical-align: middle;">{{ $value->address }}</td>
-                            <td style="vertical-align: middle;">{{ $value->gender }}</td>
-                            
-                            <td style="display: flex;justify-content:center;vertical-align: middle;text-decoration: none;">
-                                <a href="{{url('/download_lampiran', base64_encode($value->id),)}}" class="btn btn-primary btn-xs show_confirm" title="Download Lampiran" style="margin-right: 2px">
-                                    <li type="button" class="fa fa-cloud-download" ></li>
-                                </a>
-                                <a href="{{url('/download_nota_dinas', base64_encode($value->id),)}}" class="btn bg-purple btn-xs show_confirm" title="download nota dinas" style="margin-right: 2px">
-                                    <li type="button" class="fa fa-download" ></li>
-                                </a>
-                                <a href="{{url('/detail_pr_pdf', base64_encode($value->id),)}}" class="btn bg-orange btn-xs show_confirm" target="_blank" title="download detail" style="margin-right: 2px">
-                                    <li type="button" class="glyphicon glyphicon-download"></li>
-                                </a>
-                                <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 2px">
-                                    <li type="submit" class="fa fa-pencil" ></li>
-                                </a>
-                                <form action="{{ route('penduduk.destroy',base64_encode($value->id),) }}" method="post">
-                                    @csrf
-                                    @method('delete')
-                                    <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value->name}} ?')" title="Hapus" style="text-decoration: none;">
-                                        <li class="fa fa-trash" ></li>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-
-                        @endforeach()
-
-                    @else()
-
-                    @endif()
-            </tbody>
-        </table>
     </div>
 </div>
 <!-- /.box-body -->
 
 
-        
+
 <!-- create Modal-->
 <div class="modal fade" id="modal-default">
     <div class="modal-dialog">
@@ -276,17 +252,20 @@
     <!-- /.modal-dialog -->
 </div>
 
+
 @endsection
 
 
 @push('scripts')
+{{ $dataTable->scripts() }}
+
 <!-- DataTables -->
 <link rel="stylesheet" href="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-<script>
+{{-- <script>
   $(function () {
-        $('#example1').DataTable({
+        $('#penduduk-table').DataTable({
             'paging'      : true,
             'lengthChange': true,
             'searching'   : true,
@@ -295,7 +274,7 @@
             'autoWidth'   : true
         })
     })
-</script>
+</script> --}}
 
 <script>
     $(document).ready(function() {
@@ -310,4 +289,4 @@
         });
     }
 </script>
-@endpush    
+@endpush

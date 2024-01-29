@@ -30,7 +30,7 @@
             <li class="{{request()->is('list_transgender') ? 'active' : ''}}"><a href="{{url('/list_transgender')}}"><i class="fa fa-circle-o"></i> Transgender </a></li>
             <li class="{{request()->is('list_odgj') ? 'active' : ''}}"><a href="{{url('/list_odgj')}}"><i class="fa fa-circle-o"></i> Odgj </a></li>
             <li class="{{request()->is('list_panti_asuhan') ? 'active' : ''}}"><a href="{{url('/list_panti_asuhan')}}"><i class="fa fa-circle-o"></i> Panti Asuhan </a></li>
-            
+
           </ul>
         </li>
 
@@ -53,7 +53,7 @@
             </li>
           </ul>
         </li>
-        
+
         {{--<!-- <li class="treeview {{request()->is('category_pr','category_users') ? 'active' : ''}}">
           <a href="#"><i class="fa fa-th"></i><span> Kategori </span>
             <span class="pull-right-container">
@@ -95,7 +95,7 @@
         <form action="{{ url('/logout') }}" method="POST" id="logout-form" style="display: none;">
           @csrf
         </form>
-        
+
       </ul>
     </section>
     <!-- /.sidebar -->

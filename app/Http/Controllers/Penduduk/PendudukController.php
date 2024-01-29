@@ -25,7 +25,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 use File;
 use Carbon\Carbon;
-
+use App\DataTables\PenduduksDataTable;
 
 class PendudukController extends Controller
 {
@@ -54,22 +54,23 @@ class PendudukController extends Controller
         }
     }
 
-    public function index()
+    public function index(PenduduksDataTable $dataTable)
     {
 
-        $disabilitas = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
-                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
-                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
-                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
-                ->orderBy('p_rentan.id', 'DESC')
-                ->where('p_rentan.kategori_pr_id', 3)
-                ->whereYear('p_rentan.created_at', $this->year)
-                ->get();
+        // $disabilitas = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
+        //         ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
+        //         ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
+        //         ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+        //         ->orderBy('p_rentan.id', 'DESC')
+        //         ->where('p_rentan.kategori_pr_id', 3)
+        //         ->whereYear('p_rentan.created_at', $this->year)
+        //         ->get();
 
         $kategori_pr = KategoriPR::all();
         $yayasan = yayasan::all();
 
-        return view('pr.disabilitas.index',['disabilitas'=>$disabilitas,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
+        return $dataTable->render('pr.disabilitas.index', compact('kategori_pr', 'yayasan'));
+        // return view('pr.disabilitas.index',['disabilitas'=>$disabilitas,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
     }
 
     public function create()
@@ -293,87 +294,43 @@ class PendudukController extends Controller
         }
     }
 
-    public function list_napi()
+    public function list_napi(PenduduksDataTable $dataTable)
     {
-        $napi = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
-                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
-                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
-                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
-                ->orderBy('p_rentan.id', 'DESC')
-                ->where('p_rentan.kategori_pr_id', 4)
-                ->whereYear('p_rentan.created_at', $this->year)
-                ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
-        return view('pr.napi.index',['napi'=>$napi,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
+        return $dataTable->render('pr.napi.index', compact('kategori_pr', 'yayasan'));
     }
 
-    public function list_transgender()
+    public function list_transgender(PenduduksDataTable $dataTable)
     {
-        $transgender = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
-                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
-                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
-                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
-                ->orderBy('p_rentan.id', 'DESC')
-                ->where('p_rentan.kategori_pr_id', 5)
-                ->whereYear('p_rentan.created_at', $this->year)
-                ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
-        return view('pr.transgender.index',['transgender'=>$transgender,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
+        return $dataTable->render('pr.transgender.index', compact('kategori_pr', 'yayasan'));
     }
 
-     public function list_odgj()
+     public function list_odgj(PenduduksDataTable $dataTable)
     {
-
-        $odgj = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
-                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
-                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
-                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
-                ->orderBy('p_rentan.id', 'DESC')
-                ->where('p_rentan.kategori_pr_id', 1)
-                ->whereYear('p_rentan.created_at', $this->year)
-                ->get();
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
-        return view('pr.odgj.index',['odgj'=>$odgj,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
+        return $dataTable->render('pr.odgj.index', compact('kategori_pr', 'yayasan'));
     }
 
-    public function list_panti_asuhan()
+    public function list_panti_asuhan(PenduduksDataTable $dataTable)
     {
-
-        $panti_asuhan = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
-                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
-                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
-                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
-                ->orderBy('p_rentan.id', 'DESC')
-                ->where('p_rentan.kategori_pr_id', 3)
-                ->whereYear('p_rentan.created_at', $this->year)
-                ->get();
-
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
-        return view('pr.panti_asuhan.index',['panti_asuhan'=>$panti_asuhan,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
+        return $dataTable->render('pr.panti_asuhan.index', compact('kategori_pr', 'yayasan'));
     }
 
-    public function all_pr()
+    public function all_pr(PenduduksDataTable $dataTable)
     {
-
-        $all_pr = P_Rentan::select('p_rentan.*','kategori_pr.name as kategori_name','yayasan.name as yayasan_name')
-                ->leftJoin('yayasan', 'yayasan.id', '=', 'p_rentan.yayasan_id')
-                ->leftJoin('kategori_pr', 'kategori_pr.id', '=', 'p_rentan.kategori_pr_id')
-                ->selectRaw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
-                ->whereYear('p_rentan.created_at', $this->year)
-                ->orderBy('p_rentan.id', 'DESC')
-                ->get();
-
         $kategori_pr = KategoriPR::all();
         $yayasan = Yayasan::all();
 
-        return view('pr.all_pr.index',['all_pr'=>$all_pr,'kategori_pr'=>$kategori_pr,'yayasan'=>$yayasan]);
+        return $dataTable->render('pr.all_pr.index', compact('kategori_pr', 'yayasan'));
     }
 }

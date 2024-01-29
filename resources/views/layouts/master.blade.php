@@ -38,6 +38,8 @@
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  {{-- <link href="{{ asset('AdminLTE-2') }}/plugins/datatables/custom/datatables.bundle.css" rel="stylesheet" type="text/css" /> --}}
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 @include('sweetalert::alert')
@@ -48,12 +50,12 @@
     @yield('content')
   </div>
   @include('layouts.footer')
-  
 
-  
- 
 
-  
+
+
+
+
 </div>
 <!-- ./wrapper -->
 
@@ -94,6 +96,9 @@
 <script src="{{ asset('AdminLTE-2') }}/dist/js/pages/dashboard.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="{{ asset('AdminLTE-2') }}/dist/js/demo.js"></script>
+
+{{-- custom dataTable --}}
+{{-- <script src="{{ asset('AdminLTE-2') }}/plugins/datatables/custom/datatables.bundle.js"></link> --}}
 
 <!-- add plugin to content link -->
 @stack('scripts')
