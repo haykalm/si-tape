@@ -22,14 +22,14 @@ use File;
 use Exception;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Throwable;
-
+use App\DataTables\EventDataTable;
 
 class EventController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
-        
+
         $this->monthyear = Carbon::now()->format('mY');
         $this->month = Carbon::now()->format('m');
         $this->year = Carbon::now()->format('Y');
@@ -44,25 +44,26 @@ class EventController extends Controller
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
         } else {
 
-            $kode_pendataan = (int) substr($pendataan, 11, 16);
+            $kode_pendataan = (int) substr($pendataan, 10, 15);
             $kode_pendataan++;
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
         }
     }
 
-    public function index()
+    public function index(EventDataTable $dataTable)
     {
-        $event = DB::table('events as e')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'e.yayasan_id')
-                ->leftJoin('p_rentan as pr', 'pr.id', '=', 'e.p_rentan_id')
-                ->select('e.id as id_event','e.event_name','e.event_location','e.date','pr.nik','y.name as yayasan_name')
-                ->orderBy('e.id', 'DESC')
-                ->WhereNotNull('e.yayasan_id')
-                ->get();
+        // $event = DB::table('events as e')
+        //         ->leftJoin('yayasan as y', 'y.id', '=', 'e.yayasan_id')
+        //         ->leftJoin('p_rentan as pr', 'pr.id', '=', 'e.p_rentan_id')
+        //         ->select('e.id as id_event','e.event_name','e.event_location','e.date','pr.nik','y.name as yayasan_name')
+        //         ->orderBy('e.id', 'DESC')
+        //         ->WhereNotNull('e.yayasan_id')
+        //         ->get();
 
         $yayasan = Yayasan::all();
 
-        return view('event.yayasan.index',['event'=>$event,'yayasan'=>$yayasan]);
+        // return view('event.yayasan.index',['event'=>$event,'yayasan'=>$yayasan]);
+        return $dataTable->render('event.yayasan.index', compact('yayasan'));
     }
 
     /**
@@ -101,17 +102,17 @@ class EventController extends Controller
         if ($validator->fails()) {
             $out = [
                 "message" => $validator->messages()->all(),
-            ];  
+            ];
 
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
-                return back();
+                return back()->withInput()->withErrors('Terjadi kesalahan validasi.');
             }
         }
 
         if ($request->hasfile('lampiran')) {
 
-            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
         }
 
@@ -160,7 +161,7 @@ class EventController extends Controller
         }
 
         if ($request->hasfile('file')) {
-            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $Name = time().'_'.$request->file->getClientOriginalName();
             $request->file->move(public_path('files/nota_dinas'), $Name);
 
             $notadinas = new NotaDinas;
@@ -181,10 +182,9 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        
         $image = EventImages::where('events_id', $id)->get();
 
-        return view('event.yayasan.show', ['image' => $image]);        
+        return view('event.yayasan.show', ['image' => $image]);
     }
 
     /**
@@ -300,16 +300,18 @@ class EventController extends Controller
         }
     }
 
-    public function event_internal()
+    public function event_internal(EventDataTable $dataTable)
     {
-        $event = DB::table('events as e')
-                ->leftJoin('p_rentan as pr', 'pr.id', '=', 'e.p_rentan_id')
-                ->select('e.id as id_event','e.event_name','e.event_location','e.date','pr.nik')
-                ->orderBy('e.id', 'DESC')
-                ->WhereNull('e.yayasan_id')
-                ->get();
 
-        return view('event.internal.index',['event'=>$event]);
+        // $event = DB::table('events as e')
+        //         ->leftJoin('p_rentan as pr', 'pr.id', '=', 'e.p_rentan_id')
+        //         ->select('e.id as id_event','e.event_name','e.event_location','e.date','pr.nik')
+        //         ->orderBy('e.id', 'DESC')
+        //         ->WhereNull('e.yayasan_id')
+        //         ->get();
+
+        // return view('event.internal.index',['event'=>$event]);
+        return $dataTable->render('event.internal.index');
     }
 
     public function create_event_internal()
@@ -339,13 +341,13 @@ class EventController extends Controller
             ];
             foreach ($out as $key => $value) {
                 Alert::error('Failed!', $value);
-                return back();
+                return back()->withInput()->withErrors('Terjadi kesalahan validasi.');
             }
         }
 
         if ($request->hasfile('lampiran')) {
 
-            $imageName = time().'_'.$request->lampiran->getClientOriginalName();  
+            $imageName = time().'_'.$request->lampiran->getClientOriginalName();
             $request->lampiran->move(public_path('files/lampiran'), $imageName);
         }
 
@@ -394,7 +396,7 @@ class EventController extends Controller
         }
 
         if ($request->hasfile('file')) {
-            $Name = time().'_'.$request->file->getClientOriginalName();  
+            $Name = time().'_'.$request->file->getClientOriginalName();
             $request->file->move(public_path('files/nota_dinas'), $Name);
 
             $notadinas = new NotaDinas;
@@ -418,7 +420,7 @@ class EventController extends Controller
 
     public function update_event_internal(Request $request, $id)
     {
-        
+
         date_default_timezone_set('Asia/Jakarta');
 
         $validator = Validator::make($request->all(), [

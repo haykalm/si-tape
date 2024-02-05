@@ -56,7 +56,7 @@ class ReportController extends Controller
             ];
             $http_code = 200;
             // return Storage::download($filepath);
-            return Response::download($filepath); 
+            return Response::download($filepath);
         } else {
             $response = [
                 'status' => false,
@@ -83,7 +83,7 @@ class ReportController extends Controller
             ];
             $http_code = 200;
             // return Storage::download($filepath);
-            return Response::download($filepath); 
+            return Response::download($filepath);
         } else {
             $response = [
                 'status' => false,
@@ -102,7 +102,7 @@ class ReportController extends Controller
         return Excel::download(new PendudukExport, 'Penduduk_rentan.xlsx');
     }
 
-    public function import_penduduk(Request $request) 
+    public function import_penduduk(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'import_excel' => 'required|mimes:csv,xls,xlsx|max:2000',
@@ -117,7 +117,7 @@ class ReportController extends Controller
             }
         }
 
-        $file = $request->file('import_excel'); 
+        $file = $request->file('import_excel');
         $import = new PendudukImport;
         $import->import($file);
         // return $import->data;  //var data in file import
@@ -146,7 +146,7 @@ class ReportController extends Controller
     public function odgj_excel()
     {
         return Excel::download(new OdgjExport, 'Penduduk_odgj.xlsx');
-    } 
+    }
 
     public function panti_asuhan_excel()
     {
@@ -180,16 +180,16 @@ class ReportController extends Controller
                 ->where('p.kategori_pr_id', 3)
                 ->whereYear('p.created_at', $this->year)
                 ->get();
-         
+
         $kategori_name = 'Disabilitas';
-        
+
         $namefile = 'all_disabilitas';
-    
+
             $pdf = PDF::loadView('report/pr_pdf',['all_pr'=>$all_pr,'kategori_name'=>$kategori_name])
                 ->setPaper('f4', 'portrait');
-    
+
             return $pdf->stream(''. $namefile .'.pdf');
-        
+
     }
 
     public function napi_pdf()
@@ -202,7 +202,7 @@ class ReportController extends Controller
                 ->where('p.kategori_pr_id', 4)
                 ->whereYear('p.created_at', $this->year)
                 ->get();
-                
+
         $kategori_name = 'Napi';
 
         $namefile = 'all_napi';
@@ -220,7 +220,7 @@ class ReportController extends Controller
                 ->where('p.kategori_pr_id', 5)
                 ->whereYear('p.created_at', $this->year)
                 ->get();
-                
+
         $kategori_name = 'Transgender';
 
         $namefile = 'all_transgender';
@@ -238,7 +238,7 @@ class ReportController extends Controller
                 ->where('p.kategori_pr_id', 1)
                 ->whereYear('p.created_at', $this->year)
                 ->get();
-                
+
         $kategori_name = 'Odgj';
 
         $namefile = 'all_odgj';
@@ -255,8 +255,8 @@ class ReportController extends Controller
                 ->orderBy('p.id', 'DESC')
                 ->where('p.kategori_pr_id', 2)
                 ->whereYear('p.created_at', $this->year)
-                ->get(); 
-                
+                ->get();
+
         $kategori_name = 'Panti Asuhan';
 
         $namefile = 'all_panti_asuhans';

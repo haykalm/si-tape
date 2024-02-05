@@ -9,7 +9,7 @@
 <!-- DataTales Example -->
 
 <div class="content-wrapper" style="border-radius: 7px">
-    <div class="box-header responsive">
+    <div class="card-header">
         <section class="content-header">
             <div class="row">
                 <div class="col-lg-12">

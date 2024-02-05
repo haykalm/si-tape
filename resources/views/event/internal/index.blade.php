@@ -8,7 +8,7 @@
 
 <!-- DataTales Example -->
 <div class="content-wrapper" style="border-radius: 7px">
-    
+
     <div class="card-header">
         <section class="content-header">
             <div class="row">
@@ -26,22 +26,70 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-default">
+                        <br>
+                        @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>
+                        </div>
+                        @endif
+                        @if (session('warning'))
+                        <div class="alert alert-warning">
+                            {{ session('warning') }}
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>
+                        </div>
+                        @endif
+                        <div class="row">
+                            <div class="col-md-3 pull-right" style="margin-right: 10px; margin-left:10px">
+                                <div class="box box-default collapsed-box box-solid">
+                                    <div class="box-header with-border" style="padding:5px">
+                                        <p class="box-title" style="font-size: 15px">Filter</p>
+
+                                        <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                                        </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="box-body">
+                                        <form action="{{ route(Route::currentRouteName()) }}">
+                                            <label class="form-label fs-6 fw-semibold">Pilih Bulan dan Tahun:</label>
+                                            <input type="month" name="month_year" style="margin: 7px" value="{{ old('month_year') }}">
+                                            <div class="pull-right" style="margin-top: 10px">
+                                                <button type="submit" style="font-size: 12px">Apply</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="box-body mb-4">
+                            {{ $dataTable->table() }}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
-    <div class="box-body table-responsive">
+    {{-- <div class="box-body table-responsive">
         @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
-            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>  
-        </div>        
-        @endif 
+            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>
+        </div>
+        @endif
         @if (session('warning'))
         <div class="alert alert-warning">
             {{ session('warning') }}
-            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>  
-        </div>        
-        @endif 
+            <a href="#" class="close" data-dismiss="alert" aria-label="close" style="color: #ffffff;">&times;</a>
+        </div>
+        @endif
         <table id="example1" class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -65,7 +113,7 @@
                             <td style="vertical-align: middle;">{{ $value->nik }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value->event_location }}</td>
                             <td style="vertical-align: middle;">{{ date("d-M-Y",strtotime($value->date)) }}</td>
-                            
+
                             <td style="display: flex;justify-content:center;">
                                 <a class="btn btn-success btn-xs show_confirm" onClick="show({{ $value->id_event }})" data-nama="#" data-toggle="tooltip" title="show images" style="margin-right: 3px">
                                    <li type="submit" class="fa fa-eye" ></li>
@@ -93,7 +141,7 @@
                     @endif()
             </tbody>
         </table>
-    </div>
+    </div> --}}
 </div>
 <!-- /.box-body -->
 
@@ -118,11 +166,12 @@
 
 
 @push('scripts')
+{{ $dataTable->scripts() }}
 <!-- DataTables -->
 <link rel="stylesheet" href="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-<script>
+{{-- <script>
     $(function () {
         $('#example1').DataTable({
             'paging'      : true,
@@ -133,7 +182,7 @@
             'autoWidth'   : true
         })
     })
-</script>
+</script> --}}
 <script>
     $('#datepicker').datepicker({
         autoclose: true
@@ -152,4 +201,4 @@
         });
     }
 </script>
-@endpush    
+@endpush

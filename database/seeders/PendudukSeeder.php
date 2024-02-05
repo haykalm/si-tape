@@ -20,11 +20,11 @@ class PendudukSeeder extends Seeder
 
     	$faker = Faker::create('id_ID');
 
-    	for ($i=1; $i <= 100; $i++) { 
+    	for ($i=1; $i <= 1000000; $i++) {
     		// $date = $faker->date('Y-m-d', '-65 years', '-18 years');
     		// $formattedDate = date('M d, Y', strtotime($date));
     		// $date = Carbon::parse()->format('d-m-Y');
-    		
+
     		\DB::table('p_rentan')->insert([
     			'yayasan_id' => $faker->randomElement([1,2,3,4,5,6]),
     			'kategori_pr_id' => $faker->randomElement([1,2,3,4,5]),

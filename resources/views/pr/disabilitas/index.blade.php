@@ -81,41 +81,41 @@
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="box box-default">
-                <br>
-                <div class="row">
-                    <div class="col-md-3 pull-right" style="margin-right: 10px; margin-left:10px">
-                        <div class="box box-default collapsed-box box-solid">
-                            <div class="box-header with-border" style="padding:5px">
-                                <p class="box-title" style="font-size: 15px">Filter</p>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-default">
+                        <br>
+                        <div class="row">
+                            <div class="col-md-3 pull-right" style="margin-right: 10px; margin-left:10px">
+                                <div class="box box-default collapsed-box box-solid">
+                                    <div class="box-header with-border" style="padding:5px">
+                                        <p class="box-title" style="font-size: 15px">Filter</p>
 
-                                <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-                                </button>
+                                        <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                                        </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="box-body">
+                                        <form action="{{ route(Route::currentRouteName()) }}">
+                                            <label class="form-label fs-6 fw-semibold">Pilih Bulan dan Tahun:</label>
+                                            <input type="month" name="month_year" style="margin: 7px" value="{{ old('month_year') }}">
+                                            <div class="pull-right" style="margin-top: 10px">
+                                                <button type="submit" style="font-size: 12px">Apply</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="box-body">
-                                <form action="{{ route(Route::currentRouteName()) }}">
-                                    <label class="form-label fs-6 fw-semibold">Pilih Bulan dan Tahun:</label>
-                                    <input type="month" name="month_year" style="margin: 7px" value="{{ old('month_year') }}">
-                                    <div class="pull-right" style="margin-top: 10px">
-                                        <button type="submit" style="font-size: 12px">Apply</button>
-                                    </div>
-                                </form>
-                            </div>
+                        </div>
+                        <div class="box-body mb-4">
+                            {{ $dataTable->table() }}
                         </div>
                     </div>
                 </div>
-                <div class="box-body mb-4">
-                    {{ $dataTable->table() }}
-                </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 <!-- /.box-body -->

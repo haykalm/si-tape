@@ -62,7 +62,7 @@ class PendudukImport implements
         if ($pendataan == null) {
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . '00001';
         } else {
-            $kode_pendataan = (int) substr($pendataan, 11, 16);
+            $kode_pendataan = (int) substr($pendataan, 10, 15);
             $kode_pendataan++;
             $this->kode_pendataan = 'JB' . '-' . $this->monthyear . '-' . sprintf('%05s', $kode_pendataan);
         }

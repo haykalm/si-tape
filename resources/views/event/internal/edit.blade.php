@@ -64,11 +64,11 @@
 		                                                {!! Form::label('Yayasan: (opsional)', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-bank"></i></span>
-		                                                    <select class="form-control select2" name="yayasan_id" id="yayasan_id" style="width: 100%;" > 
+		                                                    <select class="form-control select2" name="yayasan_id" id="yayasan_id" style="width: 100%;" >
 		                                                        <option value=""><b>pilih yayasan :</b></option>
-		                                                        @foreach($yayasan as $data => $yayasan)                   
+		                                                        @foreach($yayasan as $data => $yayasan)
 		                                                          <option value="{{ $yayasan->id }}">{{$data+1}}. {{ $yayasan->name }}</option>
-		                                                        @endforeach              
+		                                                        @endforeach
 		                                                    </select>
 		                                                    </span>
 		                                                </div>
@@ -76,7 +76,7 @@
 		                                        </div>
 		                                    </div>
 		                                </div>
-		                                <div class="box-body col-md-4">   
+		                                <div class="box-body col-md-4">
 
 		                                 <div class="form-group">
 		                                 	{{-- kanan --}}
@@ -109,7 +109,7 @@
 			                                </div>
 		                                </center>
 		                            </div>
-		                                        
+
 		                        </div>
 		                    </div>
 		                </div>
@@ -139,7 +139,7 @@
                             <span class="input-group-addon" style="background-color: #c31818;">
                                 <a href="javascript:void(0);" class="remove_button" title="Remove field"><i class="fa fa-minus " style="color:white;"></i></a>
                             </span>
-                        </div>`; //New input field html 
+                        </div>`; //New input field html
 
         var x = 1; //Initial field counter is 1
 

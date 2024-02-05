@@ -34,7 +34,7 @@
 		                                                {!! Form::label('Nama Kegiatan:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-text-width"></i></span>
-		                                                    <input type="text" class="form-control  has-feedback" value="" id="event_name" name="event_name" required>
+		                                                    <input type="text" class="form-control  has-feedback" value="{{ old('event_name') }}" id="event_name" name="event_name" required>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -74,11 +74,11 @@
 		                                                {!! Form::label('Yayasan:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-bank"></i></span>
-		                                                    <select class="form-control select2" name="yayasan_id" id="yayasan_id" style="width: 100%;" required> 
+		                                                    <select class="form-control select2" name="yayasan_id" id="yayasan_id" style="width: 100%;" required>
 		                                                        <option value=""><b>pilih yayasan :</b></option>
-		                                                        @foreach($yayasan as $data => $yayasan)                   
+		                                                        @foreach($yayasan as $data => $yayasan)
 		                                                          <option value="{{ $yayasan->id }}">{{ $data+1 }}. {{ $yayasan->name }}</option>
-		                                                        @endforeach              
+		                                                        @endforeach
 		                                                    </select>
 		                                                    </span>
 		                                                </div>
@@ -86,7 +86,7 @@
 		                                        </div>
 		                                    </div>
 		                                </div>
-		                                <div class="box-body col-md-4">   
+		                                <div class="box-body col-md-4">
 
 		                                 <div class="form-group">	{{-- kanan --}}
 		                                        <div class="col-md-12" >
@@ -135,7 +135,7 @@
 		                                                {!! Form::label('Nik:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-credit-card"></i></span>
-		                                                    <input type="number" class="form-control  has-feedback" value="" id="nik" name="nik" required>
+		                                                    <input type="number" class="form-control  has-feedback" value="{{ old('nik') }}" id="nik" name="nik" required>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -161,7 +161,7 @@
 		                                                {!! Form::label('Nama:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-text-width"></i></span>
-		                                                    <input type="text" class="form-control  has-feedback" value="" id="name" name="name" required>
+		                                                    <input type="text" class="form-control  has-feedback" value="{{ old('name') }}" id="name" name="name" required>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -172,7 +172,7 @@
 		                                                {!! Form::label('TTL:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-birthday-cake"></i></span>
-		                                                    <input type="text" class="form-control  has-feedback" value="" id="ttl" name="ttl" required>
+		                                                    <input type="text" class="form-control  has-feedback" value="{{ old('ttl') }}" id="ttl" name="ttl" required>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -263,7 +263,7 @@
                             <span class="input-group-addon" style="background-color: #c31818;">
                                 <a href="javascript:void(0);" class="remove_button" title="Remove field"><i class="fa fa-minus " style="color:white;"></i></a>
                             </span>
-                        </div>`; //New input field html 
+                        </div>`; //New input field html
 
         var x = 1; //Initial field counter is 1
 

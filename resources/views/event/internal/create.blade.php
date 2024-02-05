@@ -34,7 +34,7 @@
 		                                                {!! Form::label('Nama Kegiatan:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-text-width"></i></span>
-		                                                    <input type="text" class="form-control  has-feedback" value="" id="event_name" name="event_name" required>
+		                                                    <input type="text" class="form-control  has-feedback" value="{{ old('event_name') }}" id="event_name" name="event_name" required autofocus>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -45,7 +45,7 @@
 		                                                {!! Form::label('Tempat Kegiatan:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-map-marker"></i></span>
-		                                                    {!! Form::textarea('event_location', null, ['class'=>'form-control ','required','placeholder' => '','style'=>'width:40%','style'=>'height:50px' ]) !!}
+		                                                    {!! Form::textarea('event_location', old('event_location'), ['class'=>'form-control ','required','autofocus','placeholder' => '','style'=>'width:40%','style'=>'height:50px' ]) !!}
 		                                                    </span>
 		                                                </div>
 		                                            </div>
@@ -61,7 +61,7 @@
 		                                                	<div class="input-group-addon">
 		                                                		<i class="fa fa-calendar"></i>
 		                                                	</div>
-		                                                	<input name="date" type="text" class="form-control pull-right" id="datepicker" required>
+		                                                	<input name="date" type="text" class="form-control pull-right" id="datepicker" required autofocus>
 		                                                	<span class="fa  fa-calendar-plus-o form-control-feedback"></span>
 		                                                </div>
 		                                            </div>
@@ -75,7 +75,7 @@
 		                                                {!! Form::label('Foto Kegiatan: (format:jpg,jpeg,png)', '') !!}
 		                                                <div class="input-group ">
 		                                                    <span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
-		                                                    <input type="file" class="form-control has-feedback" id="name_file[]" name="name_file[]">
+		                                                    <input type="file" class="form-control has-feedback" id="name_file[]" value="{{ old('name_file') }}" name="name_file[]" autofocus>
 		                                                    <span class="input-group-addon" style="background-color: #007fff;">
 		                                                        <a href="javascript:void(0);" class="add_button" title="Add field"><i class="fa fa-plus" style="color:white;"></i></a>
 		                                                    </span>
@@ -116,7 +116,12 @@
 		                                                {!! Form::label('Nik:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-credit-card"></i></span>
-		                                                    <input type="number" class="form-control  has-feedback" value="" id="nik" name="nik" required>
+		                                                    <input type="number" class="form-control has-feedback" value="{{ old('nik') }}" id="nik" name="nik" required autofocus>
+                                                            @error('nik')
+                                                                <span class="invalid-feedback" role="alert">
+                                                                    <strong>{{ $message }}</strong>
+                                                                </span>
+                                                            @enderror
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -127,7 +132,7 @@
 		                                                {!! Form::label('Alamat:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-map-marker"></i></span>
-		                                                    {!! Form::textarea('address', null, ['class'=>'form-control ','required','placeholder' => '','style'=>'width:40%','style'=>'height:50px' ]) !!}
+		                                                    {!! Form::textarea('address', old('address'), ['class'=>'form-control ','required','placeholder' => '','style'=>'width:40%','style'=>'height:50px' ]) !!}
 		                                                    </span>
 		                                                </div>
 		                                            </div>
@@ -142,7 +147,7 @@
 		                                                {!! Form::label('Nama:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-text-width"></i></span>
-		                                                    <input type="text" class="form-control  has-feedback" value="" id="name" name="name" required>
+		                                                    <input type="text" class="form-control  has-feedback" value="{{ old('name') }}" id="name" name="name" required autofocus>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -153,7 +158,7 @@
 		                                                {!! Form::label('TTL:', '') !!}
 		                                                <div class="input-group">
 		                                                    <span class="input-group-addon"><i class="fa fa-birthday-cake"></i></span>
-		                                                    <input type="text" class="form-control  has-feedback" value="" id="ttl" name="ttl" required>
+		                                                    <input type="text" class="form-control  has-feedback" value="{{ old('ttl') }}" id="ttl" name="ttl" required autofocus>
 		                                                </div>
 		                                            </div>
 		                                        </div>
@@ -167,11 +172,11 @@
 	                                					{!! Form::label('Jenis Kelamin:', '') !!}
 	                                					<div class="radio">
 	                                						<label style="margin-right: 12px">
-	                                							<input type="radio" name="gender" id="gender" value="male" checked="">
+	                                							<input type="radio" name="gender" id="gender" value="male" checked="" value="{{ old('gender') }}" autofocus>
 	                                							male (pria)
 	                                						</label>
 	                                						<label>
-	                                							<input type="radio" name="gender" id="gender" value="female" checked="">
+	                                							<input type="radio" name="gender" id="gender" value="female" value="{{ old('gender') }}" checked="" autofocus>
 	                                							female (wanita)
 	                                						</label>
 	                                					</div>
@@ -184,7 +189,7 @@
 		                                					{!! Form::label('Lampiran: (format:jpg,jpeg,png,pdf)', '') !!}
 		                                					<div class="input-group ">
 		                                						<span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
-		                                						<input type="file" class="form-control has-feedback" id="lampiran" name="lampiran">
+		                                						<input type="file" class="form-control has-feedback" id="lampiran" value="{{ old('lampiran') }}" name="lampiran" autofocus>
 		                                					</div>
 		                                				</div>
 		                                			</div>
@@ -196,7 +201,7 @@
 	                                					{!! Form::label('Nota Dinas: (format:pdf,docx)', '') !!}
 	                                					<div class="input-group ">
 	                                						<span class="input-group-addon"><i class="fa fa-picture-o"></i></span>
-	                                						<input type="file" class="form-control has-feedback" id="file" name="file" required>
+	                                						<input type="file" class="form-control has-feedback" id="file" name="file" value="{{ old('lampiran') }}" required autofocus>
 	                                					</div>
 	                                				</div>
 	                                			</div>
@@ -244,7 +249,7 @@
                             <span class="input-group-addon" style="background-color: #c31818;">
                                 <a href="javascript:void(0);" class="remove_button" title="Remove field"><i class="fa fa-minus " style="color:white;"></i></a>
                             </span>
-                        </div>`; //New input field html 
+                        </div>`; //New input field html
 
         var x = 1; //Initial field counter is 1
 
