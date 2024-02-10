@@ -45,7 +45,7 @@ class CategoryUsersController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
         ]);
-        
+
         if ($validator->fails()) {
             $out = [
             "message" => $validator->messages()->all(),
@@ -125,7 +125,7 @@ class CategoryUsersController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
         ]);
-        
+
         if ($validator->fails()) {
             $out = [
             "message" => $validator->messages()->all(),
@@ -141,7 +141,7 @@ class CategoryUsersController extends Controller
 
         }
 
-        $save = $role->update($request->all()); 
+        $save = $role->update($request->all());
         if ($save) {
             $response = [
                 'status' => true,

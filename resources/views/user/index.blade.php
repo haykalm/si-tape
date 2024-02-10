@@ -29,7 +29,7 @@
                     </section>
                 </div>
                     <div class="box-body">
-                        <div class="table-responsive">                                        
+                        <div class="table-responsive">
                             <table class="table table-hover" id="zero-config" cellspacing="0">
                                 <thead>
                                     <tr>
@@ -136,7 +136,7 @@
                                         </div>
                                     </div>
                                 </center>
-            					
+
             				</div>
             				<div class="modal-footer">
             					<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -208,7 +208,7 @@
             },
             "stripeClasses": [],
             "lengthMenu": [7, 10, 20, 50],
-            "pageLength": 7 
+            "pageLength": 7
         });
     </script>
 
@@ -225,6 +225,6 @@
             });
         }
     </script>
-    @endpush 
+    @endpush
 
 

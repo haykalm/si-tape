@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-
+@if(Auth::user()->role_id == 1)
 <!-- DataTales Example -->
 <div class="content-wrapper">
     <div class="card-header">
@@ -20,10 +20,6 @@
                             <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default" title="Add Admin">
                                 <i class="fa fa-fw fa-user-plus"></i>
                                 Add
-                            </button>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info" title="Print/Download">
-                                <i class="fa fa-fw fa-print"></i>
-                                Print
                             </button>
                         </div>
                     </div>
@@ -47,18 +43,18 @@
                         <tr style="text-align:center;font-size: 13px;">
                             <td style="vertical-align: middle;">{{ $data +1 }}</td>
                             <td style="text-transform: uppercase;vertical-align: middle;">{{ $value['name'] }}</td>
-                            
+
                             <td style="display: flex;justify-content:center;">
                                 <a class="btn btn-info btn-xs show_confirm" onClick="show({{ $value->id }})" data-nama="#" data-toggle="tooltip" title="Edit" style="margin-right: 3px">
                                    <li type="submit" class="fa fa-pencil" ></li>
                                </a>
-                                <form action="{{ route('category_users.destroy',base64_encode($value['id']),) }}" method="post" style="text-decoration: none;">
+                                {{-- <form action="{{ route('category_users.destroy',base64_encode($value['id']),) }}" method="post" style="text-decoration: none;">
                                     @csrf
                                     @method('delete')
                                    <button class="btn btn-danger btn-xs" onclick="return confirm('Are you sure want to delete {{$value['name']}} ?')" title="Delete" style="text-decoration: none;">
                                        <li class="fa fa-trash" ></li>
                                    </button>
-                               </form>
+                               </form> --}}
                             </td>
                         </tr>
                         @endforeach()
@@ -114,6 +110,31 @@
     </div>
 </div>
 
+@else()
+<div class="content-wrapper" style="background-color: red;border-radius: 7px">
+    <section class="content">
+        <div class="error-page">
+        <h2 class="headline text-yellow"> 404</h2>
+
+        <div class="error-content">
+            <h3><i class="fa fa-warning text-yellow"></i> Oops! Anda tidak memiliki hak akses halaman ini.</h3>
+
+            <p>
+            kami tidak dapat menampilkan halaman yang anda minta. sementara itu, anda dapat <a href="{{url('/home')}}">kembali ke Dashboard</a> atau tekan tombol di bawah ini
+            </p>
+
+
+            <a href="{{url('/home')}}" name="submit" class="btn btn-warning btn-flat"><i class="fa fa-dashboard"></i>
+            Kembali
+            </a>
+        </div>
+        <!-- /.error-content -->
+        </div>
+        <!-- /.error-page -->
+    </section>
+</div>
+@endif()
+
 
 @endsection
 
@@ -135,7 +156,7 @@
         },
         "stripeClasses": [],
         "lengthMenu": [7, 10, 20, 50],
-        "pageLength": 7 
+        "pageLength": 7
     });
 </script>
 
@@ -152,4 +173,4 @@
         });
     }
 </script>
-@endpush    
+@endpush

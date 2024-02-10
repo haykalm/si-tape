@@ -4,13 +4,13 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\{
     UserController,
-    // CategoryUsersController,
+    CategoryUsersController,
     YayasanController,
     EventController,
 
 };
 use App\Http\Controllers\Penduduk\{
-    // CategeoryPendudukController,
+    CategeoryPendudukController,
     PendudukController,
     ReportController,
 };
@@ -38,9 +38,9 @@ Route::middleware(['auth'])->group(function () {
 
 	Route::resource('/user', UserController::class);
 
-	// remove featur category
-	// Route::resource('/category_pr', CategeoryPendudukController::class);
-	// Route::resource('/category_users', CategoryUsersController::class);
+	// featur category
+	Route::resource('/category_pr', CategeoryPendudukController::class);
+	Route::resource('/category_users', CategoryUsersController::class);
 
 	// route penduduk rentan
 	Route::resource('/penduduk', PendudukController::class);

@@ -54,7 +54,8 @@
           </ul>
         </li>
 
-        {{--<!-- <li class="treeview {{request()->is('category_pr','category_users') ? 'active' : ''}}">
+        @if(Auth::user()->role_id == 1)
+        <li class="treeview {{request()->is('category_pr','category_users') ? 'active' : ''}}">
           <a href="#"><i class="fa fa-th"></i><span> Kategori </span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -68,7 +69,8 @@
               <a href="{{url('/category_pr')}}"><i class="fa fa-circle-o"></i>Penduduk Rentan</a>
             </li>
           </ul>
-        </li> --> --}}
+        </li>
+        @endif
 
         <li class="treeview {{request()->is('event','event/create','event_internal','create_event_internal','event/*/edit','edit_event_internal/*') ? 'active' : ''}}">
           <a href="#"><i class="fa fa-picture-o"></i><span>kegiatan</span>

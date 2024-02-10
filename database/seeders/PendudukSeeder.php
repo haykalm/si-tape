@@ -20,7 +20,7 @@ class PendudukSeeder extends Seeder
 
     	$faker = Faker::create('id_ID');
 
-    	for ($i=1; $i <= 1000000; $i++) {
+    	for ($i=1; $i <= 100; $i++) {
     		// $date = $faker->date('Y-m-d', '-65 years', '-18 years');
     		// $formattedDate = date('M d, Y', strtotime($date));
     		// $date = Carbon::parse()->format('d-m-Y');

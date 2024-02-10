@@ -24,7 +24,10 @@ class PenduduksDataTable extends DataTable
     public function dataTable($query)
     {
         return datatables()
-            ->eloquent($query->FilterMonthYear(request(['month_year'])))
+            ->eloquent($query
+                ->FilterMonthYear(request(['month_year']))
+                ->FilterKategori(request(['kategori_pr_id']))
+            )
             ->addIndexColumn()
             ->editColumn('yayasan_id', function ($row) {
                 return Yayasan::find($row->yayasan_id)->name ?? '-';

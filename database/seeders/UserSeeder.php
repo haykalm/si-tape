@@ -35,22 +35,6 @@ class UserSeeder extends Seeder
             'password' =>  Hash::make('password'),
             'role_id' => 1
         ]);
-        User::create([
-            'name' => 'ponco',
-            'email' => 'ponco@gmail.com',
-            'phone' => '081806605064',
-            'address' => 'bekasi utara - Bekasi',
-            'password' =>  Hash::make('password'),
-            'role_id' => 2
-        ]);
-        User::create([
-            'name' => 'ahmad',
-            'email' => 'ahmad@gmail.com',
-            'phone' => '088806605063',
-            'address' => 'bekasi timur - Bekasi',
-            'password' =>  Hash::make('password'),
-            'role_id' => 2
-        ]);
 
         // create role user table
         Roleuser::create([

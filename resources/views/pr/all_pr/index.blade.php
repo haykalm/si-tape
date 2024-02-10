@@ -5,7 +5,9 @@
 @endsection
 
 @section('content')
-
+@php
+    $title = 'List All Penduduk Rentan';
+@endphp
 <!-- DataTales Example -->
 
 <div class="content-wrapper" style="border-radius: 7px">
@@ -84,7 +86,7 @@
                                 <i class="fa fa-fw fa-print"></i>
                                 Print
                             </a>
-                            <a href="{{route('penduduk.excel')}}" title="Download/Excel" class="btn btn-success my-3"><i class="fa fa-fw fa-file-excel-o"></i>
+                            <a href="{{route('penduduk.excel', ['month_year' => request('month_year'), 'kategori_pr_id' => request('kategori_pr_id')])}}" id="export-penduduk" title="Download/Excel" class="btn btn-success my-3"><i class="fa fa-fw fa-file-excel-o"></i>
                                  Excel
                             </a>
                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-import" title="Import data">
@@ -92,6 +94,7 @@
                                 Import
                             </button>
                         </div>
+                        <div id="output_download_penduduk" class="d-none"></div>
                     </div>
                 </div>
             </div>
@@ -113,8 +116,27 @@
 
                                     <div class="box-body">
                                         <form action="{{ route(Route::currentRouteName()) }}">
-                                            <label class="form-label fs-6 fw-semibold">Pilih Bulan dan Tahun:</label>
-                                            <input type="month" name="month_year" style="margin: 7px" value="{{ old('month_year') }}">
+                                            <label style="margin-bottom: 0.5px">Pilih Bulan dan Tahun:</label>
+                                            <div class="input-group date" style="margin-bottom: 7px">
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </div>
+                                                <input name="month_year" value="{{ request('month_year') }}" type="month" class="form-control pull-right" id="month_year" autofocus>
+                                            </div>
+                                            <div class="form-group has-feedback">
+                                                <label style="margin-bottom: 0.5px">Kategori :</label>
+                                                <select class="form-control select2 select2-hidden-accessible" name="kategori_pr_id" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true" placeholder="--Pilih Kategori--">
+                                                    <option><b>pilih Kategori :</b></option>
+                                                    @foreach ($kategori_pr as $item)
+                                                        @if (request('kategori_pr_id') == $item->id)
+                                                            <option value="{{ $item->id }}" selected>{{ $loop->iteration.'. '.$item->name }}</option>
+                                                        @else
+                                                            <option value="{{ $item->id }}">{{ $loop->iteration.'. '.$item->name }}</option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
                                             <div class="pull-right" style="margin-top: 10px">
                                                 <button type="submit" style="font-size: 12px">Apply</button>
                                             </div>
@@ -341,6 +363,7 @@
 
 
 @push('scripts')
+{{-- @include('pr.script-export-excel') --}}
 {{ $dataTable->scripts() }}
 <!-- DataTables -->
 <link rel="stylesheet" href="{{ asset('AdminLTE-2') }}/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
@@ -359,7 +382,7 @@
     })
 </script> --}}
 
-<script>
+<script type="text/javascript">
 
 
     $(document).ready(function() {
@@ -373,5 +396,16 @@
             $("#exampleModal").modal('show');
         });
     }
+
+    $('#datepicker').datepicker({
+        changeMonth: true,
+        changeYear: true,
+        showButtonPanel: true,
+        dateFormat: 'MM yy',
+        // onClose: function (dateText, inst) {
+        //     $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+        // }
+        autoclose: true
+    });
 </script>
 @endpush

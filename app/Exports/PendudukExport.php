@@ -7,11 +7,11 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
-// use App\Models\P_Rentan;
+use App\Models\P_Rentan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-// use Illuminate\Support\Str; 
+// use Illuminate\Support\Str;
 // use Maatwebsite\Excel\Concerns\WithColumnWidths;
 class PendudukExport implements FromCollection, WithMapping, WithHeadings
 {
@@ -22,28 +22,45 @@ class PendudukExport implements FromCollection, WithMapping, WithHeadings
     // public function columnWidths(): array
     // {
     //     return [
-    //         'A1' => 45,            
-    //         'B1' => 45,            
-    //         'C1' => 45,               
-    //         'D1' => 45,            
-    //         'E1' => 45,            
-    //         'F1' => 45,            
+    //         'A1' => 45,
+    //         'B1' => 45,
+    //         'C1' => 45,
+    //         'D1' => 45,
+    //         'E1' => 45,
+    //         'F1' => 45,
     //     ];
+    // }
+
+    // protected $request;
+    // public function __construct(Request $request)
+    // {
+    //     $this->request = $request;
     // }
 
     public function collection()
     {
-        $data = DB::table('p_rentan as p')
-                ->leftJoin('yayasan as y', 'y.id', '=', 'p.yayasan_id')
-                ->leftJoin('kategori_pr as k', 'k.id', '=', 'p.kategori_pr_id')
-                ->select('p.id','p.name','p.nik','p.ttl','p.address','p.gender','k.name as kategori_name','y.name as yayasan_name', DB::raw('COALESCE(p.yayasan_id, 0) as yayasan_id'))
-                ->orderBy('p.id', 'DESC')
-                ->get();
+        $data = P_Rentan::FilterMonthYearJoin(request(['month_year']))
+            ->FilterKategoriJoin(request(['kategori_pr_id']))
+            ->leftJoin('yayasan as y', 'y.id', '=', 'p_rentan.yayasan_id')
+            ->leftJoin('kategori_pr as k', 'k.id', '=', 'p_rentan.kategori_pr_id')
+            ->select(
+                'p_rentan.id',
+                'p_rentan.name',
+                'p_rentan.nik',
+                'p_rentan.ttl',
+                'p_rentan.address',
+                'p_rentan.gender',
+                'k.name as kategori_name',
+                'y.name as yayasan_name',
+                DB::raw('COALESCE(p_rentan.yayasan_id, 0) as yayasan_id')
+            )
+            ->orderBy('p_rentan.id', 'DESC')
+            ->get();
         return $data;
     }
 
     public function map($model): array
-    {   
+    {
         return [
             // $model->nik = number_format($model->nik, 0, '', ''),
             // (string)$model->nik,
