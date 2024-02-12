@@ -39,6 +39,7 @@ class PendudukExport implements FromCollection, WithMapping, WithHeadings
 
     public function collection()
     {
+        // dd(request(['kategori_pr_id']));
         $data = P_Rentan::FilterMonthYearJoin(request(['month_year']))
             ->FilterKategoriJoin(request(['kategori_pr_id']))
             ->leftJoin('yayasan as y', 'y.id', '=', 'p_rentan.yayasan_id')
@@ -56,6 +57,7 @@ class PendudukExport implements FromCollection, WithMapping, WithHeadings
             )
             ->orderBy('p_rentan.id', 'DESC')
             ->get();
+            // dd($data);
         return $data;
     }
 

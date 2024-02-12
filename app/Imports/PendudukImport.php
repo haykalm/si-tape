@@ -159,14 +159,16 @@ class PendudukImport implements
 
     public function rules(): array
     {
-        // $names_kategori = KategoriPR::pluck('name');
+        $names_kategori = KategoriPR::pluck('name')->all();
+        $dataNmeKategori = implode(",", $names_kategori);
         return [
-            '0' => 'required|unique:p_Rentan,nik|size:16',
+            '0' => 'required|unique:p_rentan,nik|size:16',
             '1' => 'required|string',
             '2' => 'required',
             '3' => 'required',
             '4' => 'required|in:male,female',
-            '6' => 'required|in:odgj,panti asuhan,disabilitas,napi,transgender'
+            // '6' => 'required|in:odgj,panti asuhan,disabilitas,napi,transgender'
+            '6' => 'required|in:'.$dataNmeKategori
         ];
     }
     // public function onFailure(Failure ...$failure)

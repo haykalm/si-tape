@@ -120,7 +120,7 @@ class ReportController extends Controller
         $file = $request->file('import_excel');
         $import = new PendudukImport;
         $import->import($file);
-        // return $import->data;  //var data in file import
+        return $import->data;  //var data in file import
 
         if ($import->failures()->isNotEmpty()) {
             return back()->withFailures($import->failures());
